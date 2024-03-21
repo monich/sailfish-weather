@@ -15,10 +15,9 @@ BuildRequires:  pkgconfig(contentaction5)
 
 Requires: sailfishsilica-qt5 >= 1.1.110
 Requires: sailfish-content-graphics >= 1.0.42
-Requires: ambient-icons-closed >= 0.5.8
+Requires: sailfish-content-graphics-closed
 Requires: qt5-qtpositioning
 Requires: nemo-qml-plugin-systemsettings >= 0.2.26
-Requires: sailfish-weather
 Requires: qt5-qtdeclarative-import-xmllistmodel
 Requires: qt5-qtdeclarative-import-positioning
 Requires: libkeepalive >= 1.7.0
@@ -48,7 +47,6 @@ Translation source for sailfish-weather
 make %{_smp_mflags}
 
 %install
-rm -rf %{buildroot}
 
 %qmake5_install
 
