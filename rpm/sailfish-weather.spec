@@ -2,8 +2,8 @@ Name:       sailfish-weather
 Summary:    Weather application
 Version:    1.0.3
 Release:    1
-License:    BSD
-URL:        https://github.com/sailfishos/sailfish-weather
+License:    Proprietary
+URL:        https://bitbucket.org/jolla/ui-sailfish-weather
 Source0:    %{name}-%{version}.tar.bz2
 Source1:    %{name}.privileges
 BuildRequires:  pkgconfig(Qt5Core)
@@ -57,7 +57,6 @@ install -m 644 -p %{SOURCE1} %{buildroot}%{_datadir}/mapplauncherd/privileges.d/
 
 %files
 %defattr(-,root,root,-)
-%license LICENSE.BSD
 %{_datadir}/applications/*.desktop
 %{_datadir}/sailfish-weather/*
 %{_bindir}/sailfish-weather
