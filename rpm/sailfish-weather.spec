@@ -10,7 +10,6 @@ BuildRequires:  pkgconfig(Qt5Core)
 BuildRequires:  pkgconfig(Qt5Qml)
 BuildRequires:  pkgconfig(Qt5Quick)
 BuildRequires:  pkgconfig(Qt5Gui)
-BuildRequires:  desktop-file-utils
 BuildRequires:  pkgconfig(qdeclarative5-boostable)
 BuildRequires:  qt5-qttools
 BuildRequires:  qt5-qttools-linguist
@@ -39,24 +38,23 @@ Translation source for %{name}
 %setup -q -n %{name}-%{version}
 
 %build
-%qmake5 sailfish-weather.pro
-make %{_smp_mflags}
+%qmake5
+%make_build
 
 %install
-rm -rf %{buildroot}
 
 %qmake5_install
 chmod +x %{buildroot}/%{_oneshotdir}/*
 
-desktop-file-install --delete-original       \
-  --dir %{buildroot}%{_datadir}/applications             \
-   %{buildroot}%{_datadir}/applications/*.desktop
-
 mkdir -p %{buildroot}%{_datadir}/mapplauncherd/privileges.d
 install -m 644 -p %{SOURCE1} %{buildroot}%{_datadir}/mapplauncherd/privileges.d/
 
+%post
+if [ $1 -eq 2 ]; then
+    add-oneshot --all-users sailfish-weather-move-data-to-new-location || :
+fi
+
 %files
-%defattr(-,root,root,-)
 %{_datadir}/applications/*.desktop
 %{_datadir}/sailfish-weather/*
 %{_bindir}/sailfish-weather
@@ -69,10 +67,4 @@ install -m 644 -p %{SOURCE1} %{buildroot}%{_datadir}/mapplauncherd/privileges.d/
 %{_oneshotdir}/sailfish-weather-move-data-to-new-location
 
 %files ts-devel
-%defattr(-,root,root,-)
 %{_datadir}/translations/source/weather.ts
-
-%post
-if [ $1 -eq 2 ]; then
-    add-oneshot --all-users sailfish-weather-move-data-to-new-location || :
-fi
