@@ -15,7 +15,6 @@ include(translations/translations.pri)
 
 OTHER_FILES = \
     org.sailfishos.weather.service \
-    rpm/sailfish-weather.spec \
     oneshot/sailfish-weather-move-data-to-new-location
 
 oneshot.files = oneshot/sailfish-weather-move-data-to-new-location
