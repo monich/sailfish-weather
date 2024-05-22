@@ -1,5 +1,0 @@
-*.o
-*.so
-*.moc
-moc_*
-Makefile
