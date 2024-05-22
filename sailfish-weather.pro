@@ -1,7 +1,8 @@
 TEMPLATE = subdirs
 
-application.file = application.pro
+settings.subdir = application/settings
 
-settings.subdir = settings
+SUBDIRS = components application settings
 
-SUBDIRS = application settings
+OTHER_FILES = \
+    rpm/sailfish-weather.spec \

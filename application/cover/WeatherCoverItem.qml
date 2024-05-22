@@ -1,7 +1,7 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 
-Column {    
+Column {
     property alias text: primaryLabel.text
     property alias description: secondaryLabel.text
     property alias topPadding: topPaddingItem.height
