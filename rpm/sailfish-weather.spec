@@ -22,7 +22,6 @@ Requires: %{name}-all-translations >= %{_all_translations_version}
 
 Requires: sailfishsilica-qt5 >= 0.27.0
 Requires: mapplauncherd-booster-silica-qt5
-Requires: connman-qt5-declarative
 Requires: sailfish-content-graphics >= 1.0.42
 Requires: sailfish-content-graphics-closed
 Requires: qt5-qtpositioning
