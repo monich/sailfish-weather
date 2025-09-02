@@ -1,3 +1,10 @@
+/*
+ * SPDX-FileCopyrightText: 2014 - 2023 Jolla Ltd.
+ * SPDX-FileCopyrightText: 2024 - 2025 Jolla Mobile Ltd
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
 #include <QObject>
 #include <contentaction.h>
 

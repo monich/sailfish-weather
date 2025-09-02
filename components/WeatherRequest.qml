@@ -1,3 +1,8 @@
+// SPDX-FileCopyrightText: 2020 - 2023 Jolla Ltd.
+// SPDX-FileCopyrightText: 2024 - 2025 Jolla Mobile Ltd
+//
+// SPDX-License-Identifier: BSD-3-Clause
+
 import QtQuick 2.0
 import Sailfish.Weather 1.0
 import "ForecaToken.js" as Token

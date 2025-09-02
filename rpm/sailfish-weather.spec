@@ -1,9 +1,14 @@
+# SPDX-FileCopyrightText: 2013 - 2023 Jolla Ltd.
+# SPDX-FileCopyrightText: 2024 - 2025 Jolla Mobile Ltd
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
 Name:       sailfish-weather
 Summary:    Weather application
 Version:    1.0.3
 Release:    1
-License:    Proprietary
-URL:        https://bitbucket.org/jolla/ui-sailfish-weather
+License:    BSD-3-Clause
+URL:        https://github.com/sailfishos/sailfish-weather
 Source0:    %{name}-%{version}.tar.bz2
 Source1:    %{name}.privileges
 BuildRequires:  pkgconfig(Qt5Core)
@@ -70,6 +75,7 @@ if [ $1 -eq 2 ]; then
 fi
 
 %files
+%license LICENSES/BSD-3-Clause.txt
 %{_datadir}/applications/*.desktop
 %{_datadir}/sailfish-weather/*
 %{_bindir}/sailfish-weather
