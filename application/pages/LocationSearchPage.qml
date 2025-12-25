@@ -19,12 +19,14 @@ Page {
 
     LocationsModel {
         id: locationsModel
+
         onStatusChanged: if (status === Weather.Loading) loadingTimer.restart()
         onFilterChanged: delayedFilter.restart()
     }
 
     SilicaListView {
         id: locationListView
+
         currentIndex: -1
         anchors.fill: parent
         model: locationsModel
@@ -44,16 +46,25 @@ Page {
                 EnterKey.iconSource: "image://theme/icon-m-enter-close"
                 EnterKey.onClicked: focus = false
 
-                Binding {
-                    target: locationsModel
-                    property: "filter"
-                    value: searchField.text.toLowerCase().trim()
+                onTextChanged: {
+                    delayedChangeFilter.restart()
                 }
+
                 Binding {
                     target: searchField
                     property: "focus"
                     value: true
                     when: page.status == PageStatus.Active && locationListView.atYBeginning
+                }
+
+                // Add delay before change value in search text field to prevent send many requests to server while typing
+                Timer {
+                    id: delayedChangeFilter
+
+                    interval: 500
+                    onTriggered: {
+                        locationsModel.filter = searchField.text.toLowerCase().trim()
+                    }
                 }
             }
         }
@@ -66,6 +77,7 @@ Page {
         }
         ViewPlaceholder {
             id: placeHolder
+
             text: {
                 if (error) {
                     //% "Loading failed"
@@ -92,6 +104,7 @@ Page {
             // Suppress error label flicker when filter has changed but model loading state hasn't yet had time to update
             Timer {
                 id: delayedFilter
+
                 interval: 1
             }
 
@@ -115,12 +128,15 @@ Page {
         }
         delegate: BackgroundItem {
             id: searchResultItem
+
             height: Theme.itemSizeMedium
             onClicked: {
                 var location = {
                     "locationId": model.id,
+                    "latitude": model.latitude,
+                    "longitude": model.longitude,
                     "city": model.name,
-                    "state": "",
+                    "state": model.state,
                     "country": model.country,
                     "adminArea": model.adminArea,
                     "adminArea2": model.adminArea2,

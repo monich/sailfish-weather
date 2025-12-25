@@ -2,18 +2,20 @@
 // SPDX-FileCopyrightText: 2024 - 2025 Jolla Mobile Ltd
 //
 // SPDX-License-Identifier: BSD-3-Clause
+//
+// @author Anton Turko <turok@duck.com>
 
 import QtQuick 2.0
 import Sailfish.Weather 1.0
-import "ForecaToken.js" as Token
 
 QtObject {
     id: root
+
+    property string token
     property bool active: true
     property string source
     readonly property bool online: WeatherConnectionHelper.online
     property int status: Weather.Null
-    property string token
     property var request
 
     signal requestFinished(var result)
@@ -22,7 +24,8 @@ QtObject {
     onActiveChanged: if (active) attemptReload()
     onOnlineChanged: if (online) attemptReload()
     onSourceChanged: if (source.length > 0) attemptReload()
-    Component.onCompleted: Token.fetchToken(this)
+
+    Component.onCompleted: WeatherProvider.fetchToken(this)
 
     // Note: this is overridden in WeatherModel and WeatherForecastModel
     function updateAllowed() {
@@ -43,7 +46,7 @@ QtObject {
     function reload(userRequested) {
         if (online && source.length > 0) {
             status = Weather.Loading
-            if (Token.fetchToken(root)) {
+            if (WeatherProvider.fetchToken(root)) {
                 sendRequest()
             }
         } else if (source.length === 0) {
@@ -59,7 +62,7 @@ QtObject {
     }
 
     function sendRequest() {
-        if (source.length > 0 && token.length > 0 && !request) {
+        if (source.length > 0 && !request) {
             status = Weather.Loading
             request = new XMLHttpRequest()
             timeout.restart()
@@ -72,6 +75,9 @@ QtObject {
                         var data = JSON.parse(request.responseText)
                         requestFinished(data)
                         status = Weather.Ready
+                    } else if (request.status === 401) {
+                        console.warn("Unauthorized request")
+                        status = Weather.Unauthorized
                     } else {
                         console.warn("Failed to obtain weather data. HTTP error code: " + request.status)
                         status = Weather.Error
@@ -79,10 +85,16 @@ QtObject {
                     request = undefined
                 }
             }
-            request.open("GET", source + "&token=" + token)
+            const url = getUrl()
+            request.open("GET", url)
             request.send()
         }
     }
+
+    function getUrl() {
+        return source + token
+    }
+
     property Timer timeout: Timer {
         id: timeout
         interval: 8000

@@ -30,21 +30,23 @@ ListModel {
             }
         }
 
-        source: filter.length > 0 ? "https://pfa.foreca.com/api/v1/location/search/" + filter.toLowerCase() + "&lang=" + language : ""
+        source: filter.length > 2 ? WeatherProvider.searchLocationUrl(filter, language) : ""
         onRequestFinished: {
-            var locations = result["locations"]
-            if (result.length === 0 || locations === undefined) {
+
+            const locations = WeatherProvider.handleSearchLocationResult(result)
+            if (locations === undefined) {
                 status = Weather.Error
-            } else {
-                while (root.count > locations.length) {
-                    root.remove(locations.length)
-                }
-                for (var i = 0; i < locations.length; i++) {
-                    if (i < root.count) {
-                        root.set(i, locations[i])
-                    } else {
-                        root.append(locations[i])
-                    }
+                return
+            }
+            while (root.count > locations.length) {
+                root.remove(locations.length)
+            }
+            for (var i = 0; i < locations.length; i++) {
+                var location = locations[i]
+                if (i < root.count) {
+                    root.set(i, location)
+                } else {
+                    root.append(location)
                 }
             }
         }

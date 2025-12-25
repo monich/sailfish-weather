@@ -5,7 +5,7 @@
 
 import QtQuick 2.0
 import Sailfish.Weather 1.0
-import "WeatherModel.js" as WeatherModel
+import 'update-utils.js' as UpdateUtils
 
 WeatherRequest {
     property var weather
@@ -20,15 +20,16 @@ WeatherRequest {
 
         active: false
         source: requestedLocationId > 0
-                ? "https://pfa.foreca.com/api/v1/observation/latest/" + requestedLocationId
+                ? WeatherProvider.latestObservationUrl(weatherJson)
                 : ""
         onRequestFinished: {
             if (!weatherJson) return
 
             active = false;
-            var observations = result["observations"]
-            if (observations.length > 0) {
-                weatherJson["station"] = observations[0].station
+            var stationName = WeatherProvider.handleObservationResult(result)
+
+            if (stationName.length > 0) {
+                weatherJson["station"] = stationName
             }
             savedWeathersModel.update(requestedLocationId, weatherJson)
         }
@@ -44,34 +45,34 @@ WeatherRequest {
         }
     }
 
-    source: locationId > 0 ? "https://pfa.foreca.com/api/v1/current/" + locationId : ""
+    source: locationId > 0 ? WeatherProvider.currentWeatherUrl(weather) : ""
 
     function updateAllowed() {
-        return status === Weather.Null || status === Weather.Error || WeatherModel.updateAllowed()
+        return status === Weather.Null || status === Weather.Error || UpdateUtils.updateAllowed()
     }
 
     onRequestFinished: {
-        var current = result["current"]
-        if (result.length === 0 || current.temperature === "") {
+        var weatherData = WeatherProvider.handleCurrentWeatherResult(result)
+        if (weatherData === undefined) {
             status = Weather.Error
-        } else {
-            var weather = WeatherModel.getWeatherData(current)
-            weather.timestamp =  new Date(current.time)
-            this.timestamp = weather.timestamp
-
-            weather.temperature = current.temperature
-            weather.feelsLikeTemperature = current.feelsLikeTemp
-            var json = {
-                "temperature": weather.temperature,
-                "feelsLikeTemperature": weather.feelsLikeTemperature,
-                "weatherType": weather.weatherType,
-                "description": weather.description,
-                "timestamp": weather.timestamp
-            }
-            latestObservation.weatherJson = json
-            latestObservation.requestedLocationId = locationId
-            latestObservation.active = true
+            return
         }
+
+        this.timestamp = weatherData.timestamp;
+
+        var json = {
+            "locationId": weather.locationId,
+            "latitude": weather.latitude,
+            "longitude": weather.longitude,
+            "temperature": weatherData.temperature,
+            "feelsLikeTemperature": weatherData.feelsLikeTemperature,
+            "weatherType": weatherData.weatherType,
+            "description": weatherData.description,
+            "timestamp": weatherData.timestamp
+        }
+        latestObservation.weatherJson = json
+        latestObservation.requestedLocationId = locationId
+        latestObservation.active = true
     }
 
     onStatusChanged: {

@@ -58,4 +58,3 @@ QMAKE_EXTRA_TARGETS += translations engineering_english
 PRE_TARGETDEPS += translations engineering_english
 
 INSTALLS += target import translations_install engineering_english_install
-

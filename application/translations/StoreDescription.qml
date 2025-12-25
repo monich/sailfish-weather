@@ -17,7 +17,7 @@ Item {
         //% "about daily temperature highs and lows, expected wind speed and direction, precipitation and cloudiness.\n"
         //% "\n"
         //% "By default the temperature is shown in Celsius. If you prefer Fahrenheit go to "
-        //% Settings -> App -> Weather to change the used temperature unit.\n"
+        //% "Settings -> App -> Weather to change the used temperature unit.\n"
         //% "\n"
         //% "Weather is powered by Foreca weather service."
         QT_TRID_NOOP("weather-la-store_app_description")

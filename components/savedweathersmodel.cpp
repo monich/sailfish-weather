@@ -140,6 +140,8 @@ QJsonObject SavedWeathersModel::convertToJson(const Weather *weather)
 {
     QJsonObject location;
     location["locationId"] = weather->locationId();
+    location["latitude"] = weather->latitude();
+    location["longitude"] = weather->longitude();
     location["city"] = weather->city();
     location["state"] = weather->state();
     location["station"] = weather->station();
@@ -294,6 +296,10 @@ QVariant SavedWeathersModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case LocationId:
         return weather->locationId();
+    case Latitude:
+        return weather->latitude();
+    case Longitude:
+        return weather->longitude();
     case Status:
         return weather->status();
     case Station:
@@ -329,6 +335,8 @@ QHash<int, QByteArray> SavedWeathersModel::roleNames() const
 {
     QHash<int,QByteArray> roles;
     roles.insert(LocationId, "locationId");
+    roles.insert(Latitude, "latitude");
+    roles.insert(Longitude, "longitude");
     roles.insert(Status, "status");
     roles.insert(Station, "station");
     roles.insert(City, "city");
