@@ -8,6 +8,7 @@ import Sailfish.Silica 1.0
 import Sailfish.Silica.private 1.0
 import Sailfish.Weather 1.0
 import Nemo.Configuration 1.0
+import Nemo.DBus 2.0
 
 ListItem {
     id: weatherBanner
@@ -68,7 +69,7 @@ ListItem {
             MenuItem {
                 //% "Open app"
                 text: qsTrId("weather-la-open_app")
-                onClicked: WeatherLauncher.launch()
+                onClicked: weatherApp.call("activateWindow", [""])
             }
             MenuItem {
                 visible: !_unauthorized
@@ -77,6 +78,14 @@ ListItem {
                 onClicked: reload(true)
             }
         }
+    }
+
+    DBusInterface {
+        id: weatherApp
+
+        service: "org.sailfishos.weather"
+        path: "/org/sailfishos/weather"
+        iface: "org.sailfishos.weather"
     }
 
     Column {

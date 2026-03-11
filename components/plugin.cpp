@@ -12,13 +12,6 @@
 
 #include "weather.h"
 #include "savedweathersmodel.h"
-#include "weatherlauncher.h"
-
-static QObject *weatherlauncher_api_factory(QQmlEngine *, QJSEngine *)
-{
-    return new WeatherLauncher;
-}
-
 
 // using custom translator so it gets properly removed from qApp when engine is deleted
 class AppTranslator: public QTranslator
@@ -59,7 +52,6 @@ public:
         Q_UNUSED(uri)
         Q_ASSERT(QLatin1String(uri) == QLatin1String("Sailfish.Weather"));
         qmlRegisterType<SavedWeathersModel>(uri, 1, 0, "SavedWeathersModel");
-        qmlRegisterSingletonType<WeatherLauncher>(uri, 1, 0, "WeatherLauncher", weatherlauncher_api_factory);
         qmlRegisterUncreatableType<Weather>(uri, 1, 0, "Weather", "Weather element cannot be created from QML.");
     }
 };

@@ -314,5 +314,9 @@ Page {
                 pageStack.push(Qt.resolvedUrl("LocationSearchPage.qml"), undefined, PageStackAction.Immediate)
             weatherApplication.activate()
         }
+
+        function activateWindow(arg) {
+            weatherApplication.activate()
+        }
     }
 }
