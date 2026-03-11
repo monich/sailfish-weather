@@ -30,9 +30,10 @@ Page {
             busy: forecastModel.status === Weather.Loading
 
             MenuItem {
+                visible: WeatherProvider.externalUrl(weather).trim().length > 0
                 //% "More information"
                 text: qsTrId("weather-me-more_information")
-                onClicked: Qt.openUrlExternally("http://foreca.mobi/spot.php?l=" + root.weather.locationId)
+                onClicked: Qt.openUrlExternally(WeatherProvider.externalUrl(root.weather))
             }
             MenuItem {
                 //% "Update"

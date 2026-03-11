@@ -3,81 +3,120 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-var lastUpdate = new Date()
 
-function updateAllowed(interval) {
-    // only update automatically if more than <interval> minutes has
-    // passed since the last update (default 30mins: 30*60*1000)
-    // or the date has changed
-    interval = interval === undefined ? 30*60*1000 : interval
-    var now = new Date()
-    var updateAllowed = now.getDate() != lastUpdate.getDate() || (now - interval > lastUpdate)
-    if (updateAllowed) {
-        lastUpdate = now
-    }
-    return updateAllowed
+function currentWeatherUrl(weather) {
+    return 'https://pfa.foreca.com/api/v1/current/' + weather.locationId + authParam()
 }
 
-function getWeatherData(weather) {
-    var precipitationRateCode = weather.symbol.charAt(2)
-    var precipitationRate = ""
-    switch (precipitationRateCode) {
-    case '0':
-        //% "No precipitation"
-        precipitationRate = qsTrId("weather-la-precipitation_none")
-        break
-    case '1':
-        //% "Slight precipitation"
-        precipitationRate = qsTrId("weather-la-precipitation_slight")
-        break
-    case '2':
-        //% "Showers"
-        precipitationRate = qsTrId("weather-la-precipitation_showers")
-        break
-    case '3':
-        //% "Precipitation"
-        precipitationRate = qsTrId("weather-la-precipitation_normal")
-        break
-    case '4':
-        //% "Thunder"
-        precipitationRate = qsTrId("weather-la-precipitation_thunder")
-        break
-    default:
-        console.log("WeatherModel warning: invalid precipitation rate code", precipitationRateCode)
-        break
+function latestObservationUrl(weather) {
+    return "https://pfa.foreca.com/api/v1/observation/latest/" + authParam()
+}
+
+function forecastUrl(weather, isHourly) {
+    return 'https://pfa.foreca.com/api/v1/forecast/' + (hourly ? "hourly/" : "daily/") + weather.locationId + authParam()
+}
+
+function searchLocationUrl(filter, language) {
+    return "https://pfa.foreca.com/api/v1/location/search/" + filter.toLowerCase() + "&lang=" + language + authParam()
+}
+
+function handleCurrentWeatherResult(result) {
+
+    var current = result["current"]
+    if (result.length === 0 || current.temperature === "") {
+        return undefined
     }
 
-    var precipitationType = ""
-    if (precipitationRateCode === '0') { // no rain
-        //% "None"
-        precipitationType = qsTrId("weather-la-precipitationtype_none")
-    } else {
-        var precipitationTypeCode = weather.symbol.charAt(3)
-        switch (precipitationTypeCode) {
-        case '0':
-            //% "Rain"
-            precipitationType = qsTrId("weather-la-precipitationtype_rain")
-            break
-        case '1':
-            //% "Sleet"
-            precipitationType = qsTrId("weather-la-precipitationtype_sleet")
-            break
-        case '2':
-            //% "Snow"
-            precipitationType = qsTrId("weather-la-precipitationtype_snow")
-            break
-        default:
-            console.log("WeatherModel warning: invalid precipitation type code", precipitationTypeCode)
-            break
+    var weather = getWeatherData(current)
+    weather.timestamp =  new Date(current.time)
+    this.timestamp = weather.timestamp
+
+    weather.temperature = current.temperature
+    weather.feelsLikeTemperature = current.feelsLikeTemp
+    return weather
+}
+
+
+function handleObservationResult(result) {
+    var observations = result["observations"]
+    if (observations.length > 0) {
+        return observations[0].station
+    }
+
+    return ""
+}
+
+function handleForecastResult(result, hourly, visibleCount, minimumHourlyRange) {
+    var forecast = result["forecast"]
+    if (result.length === 0 || forecast.length === 0) {
+        return undefined
+    }
+
+    var weatherData = []
+    for (var i = 0; i < forecast.length; i++) {
+        var data = forecast[i]
+        var weather = getWeatherData(data)
+        if (hourly) {
+            if (i % 3 !== 0) continue
+            weather.timestamp =  new Date(data.time)
+            weather.temperature = data.temperature
+        } else {
+            var dateArray = data.date.split("-")
+            weather.timestamp = new Date(parseInt(dateArray[0]),
+                                         parseInt(dateArray[1] - 1),
+                                         parseInt(dateArray[2]))
+            weather.accumulatedPrecipitation = data.precipAccum
+            weather.maximumWindSpeed = data.maxWindSpeed
+            weather.windDirection = data.windDir
+            weather.high = data.maxTemp
+            weather.low = data.minTemp
+        }
+        weatherData[weatherData.length] = weather
+    }
+
+    if (hourly) {
+        var minimumTemperature = weatherData[0].temperature
+        var maximumTemperature = weatherData[0].temperature
+        for (i = 1; i < visibleCount + 1; i++) {
+            var temperature = weatherData[i].temperature
+            minimumTemperature = Math.min(minimumTemperature, temperature)
+            maximumTemperature = Math.max(maximumTemperature, temperature)
+        }
+        var range = maximumTemperature - minimumTemperature
+        if (range < minimumHourlyRange) {
+            minimumTemperature -= Math.floor((minimumHourlyRange - range ) / 2)
+            range = minimumHourlyRange
+        }
+
+        for (i = 0; i < visibleCount + 1; i++) {
+            weatherData[i].relativeTemperature = (weatherData[i].temperature - minimumTemperature) / range
         }
     }
 
+    return weatherData;
+}
+
+function handleSearchLocationResult(result) {
+    return result["locations"]
+}
+
+function externalUrl(weather) {
+    return "https://foreca.mobi/spot.php?l=" + weather.locationId;
+}
+
+function providerImage() {
+    return "image://theme/graphic-foreca-large?"
+}
+
+function smallProviderImage() {
+    return "image://theme/graphic-foreca-small?"
+}
+
+function getWeatherData(weather) {
     var data = {
         "description": description(weather.symbol),
         "weatherType": weatherType(weather.symbol),
-        "cloudiness": (100*parseInt(weather.symbol.charAt(1))/4),
-        "precipitationRate": precipitationRate,
-        "precipitationType": precipitationType
+        "cloudiness": (100*parseInt(weather.symbol.charAt(1))/4)
     }
     return data
 }
@@ -159,4 +198,8 @@ function description(code) {
     }
 
     return localizations[code.substr(1,3)]
+}
+
+function authParam() {
+    return '&token='
 }

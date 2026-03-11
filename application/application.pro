@@ -25,4 +25,7 @@ OTHER_FILES = \
 oneshot.files = oneshot/sailfish-weather-move-data-to-new-location
 oneshot.path  = /usr/lib/oneshot.d
 
-INSTALLS += dbus_service oneshot
+images.files = images/open-weather*.png
+images.path =  /usr/share/themes/sailfish-default/silica/icons-monochrome/
+
+INSTALLS += dbus_service oneshot images

@@ -5,7 +5,7 @@
 
 import QtQuick 2.0
 import Sailfish.Weather 1.0
-import "WeatherModel.js" as WeatherModel
+import 'update-utils.js' as UpdateUtils
 
 ListModel {
     id: root
@@ -36,73 +36,32 @@ ListModel {
     readonly property WeatherRequest model: WeatherRequest {
         id: model
 
-        source: root.locationId > 0 ?
-                    "https://pfa.foreca.com/api/v1/forecast/"
-                    + (hourly ? "hourly/" : "daily/") + root.locationId : ""
+        source: root.locationId > 0 ? WeatherProvider.forecastUrl(weather, hourly) : ""
 
         // update allowed every half hour for hourly weather, every 3 hours for daily weather
         property int maxUpdateInterval: hourly ? 30*60*1000 : 180*60*1000
+
         function updateAllowed() {
-            return status !== Weather.Unauthorized && (status === Weather.Error || status === Weather.Null || WeatherModel.updateAllowed(maxUpdateInterval))
+            return status !== Weather.Unauthorized && (status === Weather.Error || status === Weather.Null || UpdateUtils.updateAllowed(maxUpdateInterval))
         }
 
         onRequestFinished: {
-            var forecast = result["forecast"]
-            if (result.length === 0 || forecast.length === "") {
+            var weatherData = WeatherProvider.handleForecastResult(result, hourly, visibleCount, minimumHourlyRange);
+
+            if (weatherData === undefined) {
                 error = true
-            } else {
-                var weatherData = []
-                for (var i = 0; i < forecast.length; i++) {
-                    var data = forecast[i]
-                    var weather = WeatherModel.getWeatherData(data)
-                    if (hourly) {
-                        if (i % 3 !== 0) continue
-                        weather.timestamp =  new Date(data.time)
-                        weather.temperature = data.temperature
-                    } else {
-                        var dateArray = data.date.split("-")
-                        weather.timestamp = new Date(parseInt(dateArray[0]),
-                                                     parseInt(dateArray[1] - 1),
-                                                     parseInt(dateArray[2]))
-                        weather.accumulatedPrecipitation = data.precipAccum
-                        weather.maximumWindSpeed = data.maxWindSpeed
-                        weather.windDirection = data.windDir
-                        weather.high = data.maxTemp
-                        weather.low = data.minTemp
-                    }
-                    weatherData[weatherData.length] = weather
-                }
+                return
+            }
 
-                if (hourly) {
-                    var minimumTemperature = weatherData[0].temperature
-                    var maximumTemperature = weatherData[0].temperature
-                    for (i = 1; i < visibleCount + 1; i++) {
-                        var temperature = weatherData[i].temperature
-                        minimumTemperature = Math.min(minimumTemperature, temperature)
-                        maximumTemperature = Math.max(maximumTemperature, temperature)
-                    }
-                    var range = maximumTemperature - minimumTemperature
-                    if (range < minimumHourlyRange) {
-                        minimumTemperature -= Math.floor((minimumHourlyRange - range ) / 2)
-                        range = minimumHourlyRange
-                    }
+            while (root.count > weatherData.length) {
+                root.remove(weatherData.length)
+            }
 
-                    var array = []
-                    for (i = 0; i < visibleCount + 1; i++) {
-                        weatherData[i].relativeTemperature = (weatherData[i].temperature - minimumTemperature) / range
-                    }
-                }
-
-                while (root.count > weatherData.length) {
-                    root.remove(weatherData.length)
-                }
-
-                for (i = 0; i < weatherData.length; i++) {
-                    if (i < root.count) {
-                        root.set(i, weatherData[i])
-                    } else {
-                        root.append(weatherData[i])
-                    }
+            for (var i = 0; i < weatherData.length; i++) {
+                if (i < root.count) {
+                    root.set(i, weatherData[i])
+                } else {
+                    root.append(weatherData[i])
                 }
             }
         }

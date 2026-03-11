@@ -5,6 +5,7 @@
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import Sailfish.Weather 1.0
 
 BackgroundItem {
     id: root
@@ -13,7 +14,7 @@ BackgroundItem {
     property int topMargin: Theme.paddingLarge
     property int bottomMargin: 2*Theme.paddingLarge
 
-    onClicked: if (weather) Qt.openUrlExternally("http://foreca.mobi/spot.php?l=" + weather.locationId)
+    onClicked: if (WeatherProvider.externalUrl(weather).trim().length > 0) Qt.openUrlExternally(WeatherProvider.externalUrl(weather))
     height: column.height + topMargin + bottomMargin
     Column {
         id: column
@@ -28,7 +29,7 @@ BackgroundItem {
         }
         Image {
             anchors.horizontalCenter: parent.horizontalCenter
-            source: "image://theme/graphic-foreca-large?" + (highlighted ? Theme.highlightColor : Theme.primaryColor)
+            source: WeatherProvider.providerImage() + (highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor)
         }
         anchors {
             bottom: parent.bottom

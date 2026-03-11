@@ -16,6 +16,7 @@ CoverBackground {
     property bool ready: loaded && !error  && !unauthorized
     property bool loaded: weather
     property bool error: loaded && savedWeathersModel.currentWeather.status == Weather.Error
+    property bool apiKeyProvided: WeatherProvider.isApiKeyProvided
     property bool unauthorized: loaded && savedWeathersModel.currentWeather.status == Weather.Unauthorized
 
     function reload() {
@@ -33,11 +34,14 @@ CoverBackground {
 
     CoverPlaceholder {
         visible: !ready
-        icon.source: "image://theme/graphic-foreca-large"
+        icon.source: WeatherProvider.providerImage() + (highlighted ? Theme.highlightColor : Theme.primaryColor)
         text: {
             if (!loaded) {
                 //% "Select location to check weather"
                 return qsTrId("weather-la-select_location_to_check_weather")
+            } else if (!apiKeyProvided) {
+                //% "Api key is not provided. Please provide API key in the Weather app settings"
+                return qsTrId("weather-la-api_key_not_provided_instruction")
             } else if (error) {
                 //% "Unable to connect, try again"
                 return qsTrId("weather-la-unable_to_connect_try_again")

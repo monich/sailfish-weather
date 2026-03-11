@@ -19,6 +19,8 @@ class Weather : public QObject
     Q_ENUMS(Status)
     Q_PROPERTY(Status status READ status NOTIFY statusChanged)
     Q_PROPERTY(int locationId READ locationId CONSTANT)
+    Q_PROPERTY(float latitude READ latitude CONSTANT)
+    Q_PROPERTY(float longitude READ longitude CONSTANT)
     Q_PROPERTY(QString city READ city CONSTANT)
     Q_PROPERTY(QString state READ state CONSTANT)
     Q_PROPERTY(QString country READ country CONSTANT)
@@ -37,6 +39,8 @@ public:
         : QObject(parent),
           m_status(Loading),
           m_locationId(locationMap["locationId"].toInt()),
+          m_latitude(locationMap["latitude"].toFloat()),
+          m_longitude(locationMap["longitude"].toFloat()),
           m_city(locationMap["city"].toString()),
           m_state(locationMap["state"].toString()),
           m_country(locationMap["country"].toString()),
@@ -53,6 +57,8 @@ public:
     enum Status { Null, Ready, Loading, Error, Unauthorized };
 
     int locationId() const { return m_locationId; }
+    float latitude() const { return m_latitude; }
+    float longitude() const { return m_longitude; }
     Status status() const { return m_status; }
     QString city() const { return m_city; }
     QString state() const { return m_state; }
@@ -136,6 +142,8 @@ signals:
 private:
     Status m_status;
     int m_locationId;
+    float m_latitude;
+    float m_longitude;
     QString m_city;
     QString m_state;
     QString m_country;

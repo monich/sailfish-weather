@@ -21,6 +21,7 @@ ListItem {
                                                      : (dailyForecastLoader.item ? dailyForecastLoader.item.model : null)
     readonly property bool loading: forecastModel && forecastModel.status === Weather.Loading
     readonly property bool _error: forecastModel && forecastModel.status === Weather.Error
+    readonly property bool _apiKeyProvided: WeatherProvider.isApiKeyProvided
     readonly property bool _unauthorized: forecastModel && forecastModel.status === Weather.Unauthorized
     readonly property int _forecastCount: forecastModel ? forecastModel.count : 0
 
@@ -291,6 +292,11 @@ ListItem {
                                 return qsTrId("weather-la-no_network")
                             }
 
+                            if (!_apiKeyProvided) {
+                                //% "Api key is not provided"
+                                return qsTrId("weather-la-api_key_not_provided")
+                            }
+
                             //% "Invalid authentication credentials"
                             return qsTrId("weather-la-unauthorized")
                         }
@@ -312,7 +318,7 @@ ListItem {
 
                 property bool down: pressed && containsMouse
 
-                onClicked: Qt.openUrlExternally("http://foreca.mobi/spot.php?l=" + savedWeathersModel.currentWeather.locationId)
+                onClicked: if (WeatherProvider.externalUrl(weather).trim().length > 0) Qt.openUrlExternally(WeatherProvider.externalUrl(savedWeathersModel.currentWeather))
 
                 width: footerRow.width
                 height: footerRow.height + Theme.paddingSmall
@@ -339,8 +345,7 @@ ListItem {
 
                     Image {
                         anchors.verticalCenter: parent.verticalCenter
-                        source: "image://theme/graphic-foreca-small?"
-                                + (highlighted || footer.down ? Theme.highlightColor : Theme.primaryColor)
+                        source: WeatherProvider.smallProviderImage() + (highlighted ? Theme.highlightColor : Theme.primaryColor)
                     }
                     Label {
                         //: Indicates when the shown forecast information was updated

@@ -80,6 +80,7 @@ fi
 %{_datadir}/sailfish-weather/*
 %{_bindir}/sailfish-weather
 %{_datadir}/translations/weather_eng_en.qm
+%{_datadir}/themes/sailfish-default/silica/icons-monochrome/
 %{_datadir}/jolla-settings/entries/sailfish-weather.json
 %{_datadir}/jolla-settings/pages/sailfish-weather
 %{_datadir}/dbus-1/services/org.sailfishos.weather.service

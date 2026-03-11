@@ -11,8 +11,9 @@ import Nemo.DBus 2.0
 Page {
     SilicaListView {
         id: weatherListView
+
         PullDownMenu {
-            visible: savedWeathersModel.currentWeather.status !== Weather.Unauthorized
+            visible: savedWeathersModel.currentWeather.status !== Weather.Unauthorized && WeatherProvider.isApiKeyProvided
             MenuItem {
                 //% "New location"
                 text: qsTrId("weather-me-new_location")
@@ -25,6 +26,7 @@ Page {
                 enabled: savedWeathersModel.currentWeather || savedWeathersModel.count > 0
                 Timer {
                     id: reloadTimer
+
                     interval: 500
                     onTriggered: weatherApplication.reloadAll()
                 }
@@ -43,7 +45,7 @@ Page {
             }
 
             Label {
-                visible: !placeholder.enabled && currentWeatherAvailable && currentWeatherModel.status === Weather.Unauthorized
+                visible: !placeholder.enabled && currentWeatherAvailable && currentWeatherModel.status === Weather.Unauthorized && WeatherProvider.isApiKeyProvided
                 x: Theme.horizontalPageMargin
                 width: parent.width - 2*x
                 horizontalAlignment: Text.AlignHCenter
@@ -54,10 +56,28 @@ Page {
                 }
 
                 color: palette.highlightColor
-                opacity: 0.6
+                opacity: Theme.opacityHigh
 
                 //% "Invalid authentication credentials"
                 text: qsTrId("weather-la-unauthorized")
+            }
+
+            Label {
+                visible: !placeholder.enabled && currentWeatherAvailable && !WeatherProvider.isApiKeyProvided
+                x: Theme.horizontalPageMargin
+                width: parent.width - 2*x
+                horizontalAlignment: Text.AlignHCenter
+                wrapMode: Text.Wrap
+                font {
+                    pixelSize: Theme.fontSizeLarge
+                    family: Theme.fontFamilyHeading
+                }
+
+                color: palette.highlightColor
+                opacity: Theme.opacityHigh
+
+                //% "Api key is not provided. Please provide API key in the Weather app settings"
+                text: qsTrId("weather-la-api_key_not_provided_instruction")
             }
 
             Item {
@@ -67,6 +87,7 @@ Page {
         }
         PlaceholderItem {
             id: placeholder
+
             flickable: weatherListView
             parent: weatherListView.contentItem
             y: weatherListView.originY + (currentWeatherAvailable ? Math.round(parent.height/12) + weatherListView.headerItem.height
@@ -104,6 +125,7 @@ Page {
             // Only show pull down to add another location hint twice on app startup
             FirstTimeUseCounter {
                 id: counter
+
                 limit: 2
                 key: "/sailfish/weather/pull_down_to_add_another_location_hint_count"
                 property bool showLocationHint: active && currentWeatherAvailable
@@ -117,6 +139,7 @@ Page {
             function remove() {
                 savedWeathersModel.remove(locationId)
             }
+            visible: WeatherProvider.isApiKeyProvided
             ListView.onAdd: AddAnimation { target: savedWeatherItem }
             ListView.onRemove: animateRemoval()
             menu: contextMenuComponent
@@ -128,6 +151,7 @@ Page {
 
             Image {
                 id: icon
+
                 x: Theme.horizontalPageMargin
                 anchors.verticalCenter: labelColumn.verticalCenter
                 visible: model.status !== Weather.Loading
@@ -155,6 +179,7 @@ Page {
                 }
                 Label {
                     id: cityLabel
+
                     width: parent.width
                     color: highlighted ? Theme.highlightColor : Theme.primaryColor
                     text: model.city + ", " + model.country + (model.adminArea ? (", " + model.adminArea) : "")
@@ -178,6 +203,7 @@ Page {
             }
             Label {
                 id: temperatureLabel
+
                 text: TemperatureConverter.format(model.temperature)
                 color: highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
                 font.pixelSize: Theme.fontSizeHuge
@@ -191,6 +217,7 @@ Page {
             }
             Component {
                 id: contextMenuComponent
+
                 ContextMenu {
                     property bool moveItemsWhenClosed
                     property bool setCurrentWhenClosed
@@ -207,6 +234,8 @@ Page {
                                 if (!current || current.locationId !== model.locationId) {
                                     var weather = {
                                         "locationId": model.locationId,
+                                        "latitude": model.latitude,
+                                        "longitude": model.longitude,
                                         "city": model.city,
                                         "state": model.state,
                                         "adminArea": model.adminArea,
@@ -254,6 +283,7 @@ Page {
         }
         ProviderDisclaimer {
             id: provider
+
             y: weatherListView.originY - weatherListView.contentY - height + Math.max(Screen.height, weatherListView.contentHeight)
             weather: savedWeathersModel.currentWeather
         }
