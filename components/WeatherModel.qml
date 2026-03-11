@@ -22,10 +22,12 @@ WeatherRequest {
         source: requestedLocationId > 0
                 ? WeatherProvider.latestObservationUrl(weatherJson)
                 : ""
-        onRequestFinished: {
-            if (!weatherJson) return
 
-            active = false;
+        onRequestFinished: {
+            if (!weatherJson)
+                return
+
+            active = false
             var stationName = WeatherProvider.handleObservationResult(result)
 
             if (stationName.length > 0) {
@@ -40,7 +42,8 @@ WeatherRequest {
                     savedWeathers.setErrorStatus(requestedLocationId, status)
                 }
 
-                console.log("WeatherModel - could not obtain weather station data", weather ? weather.city : "", weather ? weather.locationId : "")
+                console.log("WeatherModel - could not obtain weather station data",
+                            weather ? weather.city : "", weather ? weather.locationId : "")
             }
         }
     }
@@ -58,7 +61,7 @@ WeatherRequest {
             return
         }
 
-        this.timestamp = weatherData.timestamp;
+        this.timestamp = weatherData.timestamp
 
         var json = {
             "locationId": weather.locationId,
@@ -81,7 +84,8 @@ WeatherRequest {
                 savedWeathers.setErrorStatus(locationId, status)
             }
 
-            console.log("WeatherModel - could not obtain weather data", weather ? weather.city : "", weather ? weather.locationId : "")
+            console.log("WeatherModel - could not obtain weather data",
+                        weather ? weather.city : "", weather ? weather.locationId : "")
         }
     }
 }

@@ -33,9 +33,9 @@ Item {
         if (value) {
             var angle = value
             var integer = Math.floor(value)
-            var decimal = 2*Math.round(50*(angle - integer))
+            var decimal = 2 * Math.round(50 * (angle - integer))
             if (decimal == 100) {
-                integer = Math.floor(value+1)
+                integer = Math.floor(value + 1)
                 decimal = 0
             }
             return integer.toString() + "." + (decimal < 10 ? "0" : "") + decimal.toString()
@@ -93,6 +93,7 @@ Item {
     }
     PositionSource {
         id: positionSource
+
         active: model.positioningAllowed && model.active
         onPositionChanged: {
             locationObtained = true

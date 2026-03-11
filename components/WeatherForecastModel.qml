@@ -42,11 +42,14 @@ ListModel {
         property int maxUpdateInterval: hourly ? 30*60*1000 : 180*60*1000
 
         function updateAllowed() {
-            return status !== Weather.Unauthorized && (status === Weather.Error || status === Weather.Null || UpdateUtils.updateAllowed(maxUpdateInterval))
+            return status !== Weather.Unauthorized
+                    && (status === Weather.Error
+                        || status === Weather.Null
+                        || UpdateUtils.updateAllowed(maxUpdateInterval))
         }
 
         onRequestFinished: {
-            var weatherData = WeatherProvider.handleForecastResult(result, hourly, visibleCount, minimumHourlyRange);
+            var weatherData = WeatherProvider.handleForecastResult(result, hourly, visibleCount, minimumHourlyRange)
 
             if (weatherData === undefined) {
                 error = true
@@ -68,7 +71,8 @@ ListModel {
 
         onStatusChanged: {
             if (status === Weather.Error) {
-                console.log("WeatherForecastModel - could not obtain forecast weather data", weather ? weather.city : "", weather ? weather.locationId : "")
+                console.log("WeatherForecastModel - could not obtain forecast weather data",
+                            weather ? weather.city : "", weather ? weather.locationId : "")
             }
         }
     }

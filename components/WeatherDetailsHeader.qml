@@ -23,6 +23,7 @@ Item {
         width: parent.width
         PageHeader {
             id: pageHeader
+
             title: weather ? weather.city : ""
             description: {
                 if (status === Weather.Error) {
@@ -44,13 +45,13 @@ Item {
             }
         }
 
-
         Item {
             width: parent.width
             height: windDirectionIcon.height + windDirectionIcon.y
 
             Label {
                 id: accumulatedPrecipitationLabel
+
                 color: Theme.highlightColor
                 font.pixelSize: Theme.fontSizeHuge
                 text: model ? parseFloat(model.accumulatedPrecipitation).toLocaleString(Qt.locale(), 'f', 1) : ""
@@ -81,7 +82,7 @@ Item {
                     top: accumulatedPrecipitationLabel.baseline
                     topMargin: Theme.paddingSmall
                 }
-                width: parent.width/3 - Theme.paddingLarge
+                width: parent.width / 3 - Theme.paddingLarge
                 wrapMode: Text.WordWrap
                 color: Theme.secondaryHighlightColor
                 font.pixelSize: Theme.fontSizeExtraSmall
@@ -90,6 +91,7 @@ Item {
             }
             Image {
                 id: windDirectionIcon
+
                 y: Screen.sizeCategory >= Screen.Large ? 0 : -Theme.paddingLarge
                 source: "image://theme/graphic-weather-wind-direction?" + Theme.highlightColor
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -109,6 +111,7 @@ Item {
             }
             Label {
                 id: windSpeedLabel
+
                 color: Theme.highlightColor
                 font.pixelSize: Theme.fontSizeHuge
                 anchors.centerIn: windDirectionIcon
@@ -130,6 +133,7 @@ Item {
             }
             Label {
                 id: temperatureHighLabel
+
                 color: Theme.highlightColor
                 font.pixelSize: Theme.fontSizeHuge
                 text: model ? TemperatureConverter.format(model.high) : ""

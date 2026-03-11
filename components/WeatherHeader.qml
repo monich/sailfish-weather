@@ -21,6 +21,7 @@ MouseArea {
     Behavior on height { NumberAnimation { duration: 200; easing.type: Easing.InOutQuad } }
     WeatherImage {
         id: weatherImage
+
         x: Theme.horizontalPageMargin
         y: 2*Theme.horizontalPageMargin
         highlighted: root.highlighted
@@ -29,7 +30,9 @@ MouseArea {
     }
     PageHeader {
         id: pageHeader
+
         property int offset: _titleItem.y + _titleItem.height
+
         anchors {
             left: weatherImage.right
             // weather graphics have some inline padding and rounded edges to give space for header
@@ -41,6 +44,7 @@ MouseArea {
     }
     Column {
         id: column
+
         anchors {
             top: pageHeader.top
             topMargin: pageHeader.offset
@@ -53,8 +57,10 @@ MouseArea {
         Item {
             width: parent.width
             height: secondaryLabel.height + timestampLabel.height
+
             Label {
                 id: secondaryLabel
+
                 font.pixelSize: Theme.fontSizeSmall
                 color: Theme.secondaryHighlightColor
                 //% "Current location"
@@ -65,6 +71,7 @@ MouseArea {
             }
             Label {
                 id: timestampLabel
+
                 width: parent.width
                 wrapMode: Text.Wrap
                 anchors.top: secondaryLabel.bottom

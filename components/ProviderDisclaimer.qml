@@ -14,12 +14,18 @@ BackgroundItem {
     property int topMargin: Theme.paddingLarge
     property int bottomMargin: 2*Theme.paddingLarge
 
-    onClicked: if (WeatherProvider.externalUrl(weather).trim().length > 0) Qt.openUrlExternally(WeatherProvider.externalUrl(weather))
+    onClicked: {
+        if (WeatherProvider.externalUrl(weather).trim().length > 0)
+            Qt.openUrlExternally(WeatherProvider.externalUrl(weather))
+    }
     height: column.height + topMargin + bottomMargin
+
     Column {
         id: column
+
         width: parent.width
         spacing: Theme.paddingSmall
+
         Label {
             //% "Powered by"
             text: qsTrId("weather-la-powered_by")

@@ -12,6 +12,7 @@ import Sailfish.Weather 1.0
 
 ApplicationSettings {
     id: root
+
     ConfigurationValue {
         id: temperatureUnitValue
 
@@ -111,13 +112,14 @@ ApplicationSettings {
     Label {
         visible: weatherDataProvider.value === WeatherProvider.name.OPEN_WEATHER
 
+        //: Step by step instruction how to obtain api key for OpenWeather provider.
+        //: Where %1 gets replaced by sign up url and %2 by api key page
         //% "To obtain your API key:"
         //% "<ol><li>Register an account."
         //% "<p>Go to <b><a href='%1'>OpenWeatherMap</a></b> and create an account.</p></li>"
         //% "<li>Generate your API key"
         //% "<p>After logging in, navigate to the <b><a href='%2'>API keys</a></b> section and generate a new API key.</p></li>"
         //% "<li>Enter the API key<p>Copy and paste the API key in the <b>API Key</b> field above.</p></li></ol>"
-        //: Step by step instruction how to obtain api key for OpenWeather provider. Where %1 gets replaced by sign up url and %2 by api key page
         text: "<style>a:link { color: " + Theme.primaryColor + " }</style>" +
             qsTrId("weather_settings-open-weather-instruction").arg('https://home.openweathermap.org/users/sign_up')
                 .arg('https://home.openweathermap.org/api_keys')

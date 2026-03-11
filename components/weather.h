@@ -35,6 +35,14 @@ class Weather : public QObject
     Q_PROPERTY(bool populated READ populated NOTIFY populatedChanged)
 
 public:
+    enum Status {
+        Null,
+        Ready,
+        Loading,
+        Error,
+        Unauthorized
+    };
+
     Weather(QObject *parent, const QVariantMap &locationMap)
         : QObject(parent),
           m_status(Loading),
@@ -54,7 +62,6 @@ public:
     }
 
     ~Weather() {}
-    enum Status { Null, Ready, Loading, Error, Unauthorized };
 
     int locationId() const { return m_locationId; }
     float latitude() const { return m_latitude; }
@@ -73,50 +80,64 @@ public:
     QString station() const { return m_station; }
     bool populated() const { return m_populated; }
 
-    void setStatus(Status status) {
+    void setStatus(Status status)
+    {
         if (m_status != status) {
             m_status = status;
             emit statusChanged();
         }
     }
-    void setTemperature(int temperature) {
+
+    void setTemperature(int temperature)
+    {
         if (m_temperature != temperature) {
             m_temperature = temperature;
             emit temperatureChanged();
         }
     }
-    void setfeelsLikeTemperature(int feelsLikeTemperature) {
+
+    void setfeelsLikeTemperature(int feelsLikeTemperature)
+    {
         if (m_feelsLikeTemperature != feelsLikeTemperature) {
             m_feelsLikeTemperature = feelsLikeTemperature;
             emit feelsLikeTemperatureChanged();
         }
     }
-    void setWeatherType(QString weatherType) {
+
+    void setWeatherType(QString weatherType)
+    {
         if (m_weatherType != weatherType) {
             m_weatherType = weatherType;
             emit weatherTypeChanged();
         }
     }
-    void setDescription(QString description) {
+
+    void setDescription(QString description)
+    {
         if (m_description != description) {
             m_description = description;
             emit descriptionChanged();
         }
     }
-    void setTimestamp(QDateTime timestamp) {
+
+    void setTimestamp(QDateTime timestamp)
+    {
         if (m_timestamp != timestamp) {
             m_timestamp = timestamp;
             emit timestampChanged();
         }
     }
-    void setStation(QString station) {
+
+    void setStation(QString station)
+    {
         if (m_station != station) {
             m_station = station;
             emit stationChanged();
         }
     }
 
-    Q_INVOKABLE void update(const QVariantMap &weatherMap) {
+    Q_INVOKABLE void update(const QVariantMap &weatherMap)
+    {
         setTemperature(weatherMap["temperature"].toInt());
         setfeelsLikeTemperature(weatherMap["feelsLikeTemperature"].toInt());
         setWeatherType(weatherMap["weatherType"].toString());

@@ -36,16 +36,21 @@ Page {
         header: Column {
             width: parent.width
             spacing: Theme.paddingLarge
+
             WeatherHeader {
                 opacity: currentWeatherAvailable ? 1.0 : 0.0
                 weather: savedWeathersModel.currentWeather
                 onClicked: {
-                    pageStack.animatorPush("WeatherPage.qml", {"weather": weather, "weatherModel": currentWeatherModel, "current": true })
+                    pageStack.animatorPush("WeatherPage.qml",
+                                           {"weather": weather, "weatherModel": currentWeatherModel, "current": true })
                 }
             }
 
             Label {
-                visible: !placeholder.enabled && currentWeatherAvailable && currentWeatherModel.status === Weather.Unauthorized && WeatherProvider.isApiKeyProvided
+                visible: !placeholder.enabled
+                         && currentWeatherAvailable
+                         && currentWeatherModel.status === Weather.Unauthorized
+                         && WeatherProvider.isApiKeyProvided
                 x: Theme.horizontalPageMargin
                 width: parent.width - 2*x
                 horizontalAlignment: Text.AlignHCenter
@@ -90,8 +95,9 @@ Page {
 
             flickable: weatherListView
             parent: weatherListView.contentItem
-            y: weatherListView.originY + (currentWeatherAvailable ? Math.round(parent.height/12) + weatherListView.headerItem.height
-                                                                  : Math.round(Screen.height/4))
+            y: weatherListView.originY
+               + (currentWeatherAvailable ? Math.round(parent.height / 12) + weatherListView.headerItem.height
+                                          : Math.round(Screen.height / 4))
             enabled: !currentWeatherAvailable || (savedWeathersModel.count === 0 && counter.active)
             error: savedWeathersModel.currentWeather && savedWeathersModel.currentWeather.status === Weather.Error
             unauthorized: savedWeathersModel.currentWeather && savedWeathersModel.currentWeather.status === Weather.Unauthorized
@@ -281,10 +287,12 @@ Page {
             width: parent.width
             height: provider.height
         }
+
         ProviderDisclaimer {
             id: provider
 
-            y: weatherListView.originY - weatherListView.contentY - height + Math.max(Screen.height, weatherListView.contentHeight)
+            y: weatherListView.originY - weatherListView.contentY - height
+               + Math.max(Screen.height, weatherListView.contentHeight)
             weather: savedWeathersModel.currentWeather
         }
         VerticalScrollDecorator {}
@@ -304,6 +312,10 @@ Page {
             var alreadyOpen = pageStack.currentPage && pageStack.currentPage.objectName === "LocationSearchPage"
             if (!alreadyOpen)
                 pageStack.push(Qt.resolvedUrl("LocationSearchPage.qml"), undefined, PageStackAction.Immediate)
+            weatherApplication.activate()
+        }
+
+        function activateWindow(arg) {
             weatherApplication.activate()
         }
     }

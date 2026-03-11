@@ -13,10 +13,11 @@ Item {
 
     height: temperatureLabel.height
     width: temperatureLabel.width + degreeSymbol.width + Theme.paddingMedium
+
     Label {
         id: temperatureLabel
-        color: Theme.primaryColor
 
+        color: Theme.primaryColor
         // Glyphs larger than 100 or so look poorly in the default rendering mode
         renderType: font.pixelSize > 100 ? Text.NativeRendering : Text.QtRendering
         font {
@@ -26,6 +27,7 @@ Item {
     }
     Label {
         id: degreeSymbol
+
         text: "\u00B0"
         color: parent.color
         anchors {
@@ -39,7 +41,8 @@ Item {
     }
     Label {
         id: feelsLikeTemperatureLabel
-        opacity: 0.6
+
+        opacity: Theme.opacityHigh
         color: parent.color
         font.pixelSize: Theme.fontSizeLarge
         anchors {

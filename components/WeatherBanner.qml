@@ -8,6 +8,7 @@ import Sailfish.Silica 1.0
 import Sailfish.Silica.private 1.0
 import Sailfish.Weather 1.0
 import Nemo.Configuration 1.0
+import Nemo.DBus 2.0
 
 ListItem {
     id: weatherBanner
@@ -68,7 +69,7 @@ ListItem {
             MenuItem {
                 //% "Open app"
                 text: qsTrId("weather-la-open_app")
-                onClicked: WeatherLauncher.launch()
+                onClicked: weatherApp.call("activateWindow", [""])
             }
             MenuItem {
                 visible: !_unauthorized
@@ -79,8 +80,17 @@ ListItem {
         }
     }
 
+    DBusInterface {
+        id: weatherApp
+
+        service: "org.sailfishos.weather"
+        path: "/org/sailfishos/weather"
+        iface: "org.sailfishos.weather"
+    }
+
     Column {
         id: column
+
         width: parent.width
         Row {
             id: row
@@ -94,6 +104,7 @@ ListItem {
 
             Image {
                 id: image
+
                 width: height
                 height: parent.height
                 anchors.verticalCenter: parent.verticalCenter
@@ -109,6 +120,7 @@ ListItem {
 
             Label {
                 id: temperatureLabel
+
                 text: weather ? TemperatureConverter.format(weather.temperature) : ""
                 font.pixelSize: Theme.fontSizeExtraLarge
                 anchors.verticalCenter: parent.verticalCenter
@@ -121,6 +133,7 @@ ListItem {
 
             Label {
                 id: cityLabel
+
                 text: weather ? weather.city : ""
                 color: highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
                 font {
@@ -155,9 +168,8 @@ ListItem {
         }
         Column {
             width: parent.width
-            opacity: expanded ? 1.0 : 0.0
-
             height: expanded ? implicitHeight : 0
+            opacity: expanded ? 1.0 : 0.0
             Behavior on opacity { FadeAnimator {} }
             Behavior on height {
                 NumberAnimation {
@@ -171,6 +183,7 @@ ListItem {
                 height: Math.max(hourlyForecastLoader.height, dailyForecastLoader.height)
                 Loader {
                     id: dailyForecastLoader
+
                     width: parent.width
                     active: !weatherBanner.hourly && expanded
                     anchors.verticalCenter: parent.verticalCenter
@@ -200,6 +213,7 @@ ListItem {
 
                 Loader {
                     id: hourlyForecastLoader
+
                     width: parent.width
                     active: weatherBanner.hourly && expanded
                     anchors.verticalCenter: parent.verticalCenter
@@ -215,14 +229,14 @@ ListItem {
 
                         FontMetrics {
                             id: fontMetrics
+
                             font.pixelSize: Theme.fontSizeMedium // align with temperature label in HourlyForecastItem
                         }
 
                         Item {
                             y: fontMetrics.height
-
                             visible: hourlyForecastList.model.count > 0
-                            width: hourlyForecastList.width - hourlyForecastList.itemWidth/2
+                            width: hourlyForecastList.width - hourlyForecastList.itemWidth / 2
                             height: temperatureGraph.height
                             anchors.horizontalCenter: parent.horizontalCenter
                             clip: true
@@ -318,7 +332,10 @@ ListItem {
 
                 property bool down: pressed && containsMouse
 
-                onClicked: if (WeatherProvider.externalUrl(weather).trim().length > 0) Qt.openUrlExternally(WeatherProvider.externalUrl(savedWeathersModel.currentWeather))
+                onClicked: {
+                    if (WeatherProvider.externalUrl(weather).trim().length > 0)
+                        Qt.openUrlExternally(WeatherProvider.externalUrl(savedWeathersModel.currentWeather))
+                }
 
                 width: footerRow.width
                 height: footerRow.height + Theme.paddingSmall
@@ -329,12 +346,20 @@ ListItem {
                     id: footerRow
 
                     BusyIndicator {
+                        property bool loading: weatherBanner.loading && forecastModel.count > 0
+
                         size: BusyIndicatorSize.Small
                         anchors.verticalCenter: parent.verticalCenter
-                        running: minimumTimeout.running || (weatherBanner.loading && forecastModel.count > 0)
-                        onRunningChanged: minimumTimeout.restart()
+                        running: loading || minimumTimeout.running
+                        onLoadingChanged: {
+                            if (loading) {
+                                minimumTimeout.restart()
+                            }
+                        }
+
                         Timer {
                             id: minimumTimeout
+
                             interval: 400
                         }
                     }
@@ -389,23 +414,27 @@ ListItem {
 
     SavedWeathersModel {
         id: savedWeathersModel
+
         autoRefresh: true
     }
 
     WeatherModel {
         id: weatherModel
+
         weather: savedWeathersModel.currentWeather
         savedWeathers: savedWeathersModel
     }
 
     ConfigurationValue {
         id: forecastMode
+
         key: "/sailfish/weather/forecast_mode"
         defaultValue: "hourly"
     }
 
     ConfigurationValue {
         id: timeFormatConfig
+
         key: "/sailfish/i18n/lc_timeformat24h"
     }
 }

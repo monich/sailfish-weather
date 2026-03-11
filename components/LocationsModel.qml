@@ -32,12 +32,12 @@ ListModel {
 
         source: filter.length > 2 ? WeatherProvider.searchLocationUrl(filter, language) : ""
         onRequestFinished: {
-
             const locations = WeatherProvider.handleSearchLocationResult(result)
             if (locations === undefined) {
                 status = Weather.Error
                 return
             }
+
             while (root.count > locations.length) {
                 root.remove(locations.length)
             }

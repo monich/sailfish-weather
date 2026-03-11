@@ -21,7 +21,6 @@ SOURCES += plugin.cpp \
 # C++ headers
 HEADERS += weather.h \
            savedweathersmodel.h \
-           weatherlauncher.h
 
 import.files = *.qml *.js qmldir
 import.path = $$TARGETPATH

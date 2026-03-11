@@ -13,7 +13,6 @@ import "OpenWeatherBackend.js" as OpenWeatherBackend
 import "ForecaWeatherBackend.js" as ForecaWeatherBackend
 
 QtObject {
-
     readonly property var name: ({
         FORECA: 'foreca',
         OPEN_WEATHER: 'open_weather',
@@ -30,15 +29,15 @@ QtObject {
         defaultValue: ""
     }
 
-    readonly property var isApiKeyProvided: {
+    readonly property bool isApiKeyProvided: {
         switch (weatherProvider.value) {
-            case name.FORECA:
-             return true
-            case name.OPEN_WEATHER:
-             return openWeatherProviderAppKey.value.length > 0
-            default:
-             console.log("Weather provider doesn't provide API key.")
-             return false
+        case name.FORECA:
+            return true
+        case name.OPEN_WEATHER:
+            return openWeatherProviderAppKey.value.length > 0
+        default:
+            console.log("Weather provider doesn't provide API key.")
+            return false
         }
     }
 
@@ -110,9 +109,10 @@ QtObject {
     function handleForecastResult(result, hourly, visibleCount, minimumHourlyRange) {
         var res = this.backend.handleForecastResult(result, hourly, visibleCount, minimumHourlyRange)
         for (var index in res) {
-            var weather = res[index];
+            var weather = res[index]
             var precipitationRateCode = weather.weatherType.charAt(2)
             var precipitationRate = ""
+
             switch (precipitationRateCode) {
             case '0':
                 //% "No precipitation"
@@ -166,6 +166,7 @@ QtObject {
             weather['precipitationType'] = precipitationType
             weather['precipitationRate'] = precipitationRate
         }
-        return res;
+
+        return res
     }
 }
