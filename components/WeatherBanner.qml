@@ -337,10 +337,16 @@ ListItem {
                     id: footerRow
 
                     BusyIndicator {
+                        property bool loading: weatherBanner.loading && forecastModel.count > 0
+
                         size: BusyIndicatorSize.Small
                         anchors.verticalCenter: parent.verticalCenter
-                        running: minimumTimeout.running || (weatherBanner.loading && forecastModel.count > 0)
-                        onRunningChanged: minimumTimeout.restart()
+                        running: loading || minimumTimeout.running
+                        onLoadingChanged: {
+                            if (loading) {
+                                minimumTimeout.restart()
+                            }
+                        }
 
                         Timer {
                             id: minimumTimeout
