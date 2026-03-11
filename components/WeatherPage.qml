@@ -80,6 +80,7 @@ Page {
 
         model: WeatherForecastModel {
             id: forecastModel
+
             weather: root.weather
             timestamp: weatherModel.timestamp
             active: root.status === PageStatus.Active && Qt.application.active
@@ -87,7 +88,7 @@ Page {
 
         clip: true
         orientation: ListView.Horizontal
-        height: 2*(Screen.sizeCategory >= Screen.Large ? Theme.itemSizeExtraLarge : Theme.itemSizeLarge)
+        height: 2 * (Screen.sizeCategory >= Screen.Large ? Theme.itemSizeExtraLarge : Theme.itemSizeLarge)
         anchors {
             bottom: parent.bottom
             horizontalCenter: parent.horizontalCenter

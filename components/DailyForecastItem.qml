@@ -8,9 +8,11 @@ import Sailfish.Silica 1.0
 import Sailfish.Weather 1.0
 
 Column {
+    property bool highlighted
+
     width: parent.width
     anchors.centerIn: parent
-    property bool highlighted
+
     Label {
         property bool truncate: implicitWidth > parent.width - Theme.paddingSmall
 
@@ -34,6 +36,7 @@ Column {
     }
     Image {
         property string prefix: "image://theme/icon-" + (Screen.sizeCategory >= Screen.Large ? "l" : "m")
+
         anchors.horizontalCenter: parent.horizontalCenter
         source: model.weatherType.length > 0 ? prefix + "-weather-" + model.weatherType
                                                + (highlighted ? "?" + Theme.highlightColor : "")

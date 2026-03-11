@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
-
 function currentWeatherUrl(weather) {
     return 'https://pfa.foreca.com/api/v1/current/' + weather.locationId + authParam()
 }
@@ -93,7 +92,7 @@ function handleForecastResult(result, hourly, visibleCount, minimumHourlyRange) 
         }
     }
 
-    return weatherData;
+    return weatherData
 }
 
 function handleSearchLocationResult(result) {
@@ -101,7 +100,7 @@ function handleSearchLocationResult(result) {
 }
 
 function externalUrl(weather) {
-    return "https://foreca.mobi/spot.php?l=" + weather.locationId;
+    return "https://foreca.mobi/spot.php?l=" + weather.locationId
 }
 
 function providerImage() {
@@ -116,7 +115,7 @@ function getWeatherData(weather) {
     var data = {
         "description": description(weather.symbol),
         "weatherType": weatherType(weather.symbol),
-        "cloudiness": (100*parseInt(weather.symbol.charAt(1))/4)
+        "cloudiness": (100 * parseInt(weather.symbol.charAt(1)) / 4)
     }
     return data
 }
@@ -197,7 +196,7 @@ function description(code) {
         "432": qsTrId("weather-la-description_overcast_and_snow")
     }
 
-    return localizations[code.substr(1,3)]
+    return localizations[code.substr(1, 3)]
 }
 
 function authParam() {

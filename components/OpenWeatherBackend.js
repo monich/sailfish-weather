@@ -15,7 +15,8 @@ function latestObservationUrl(weather) {
 }
 
 function forecastUrl(weather, isHourly) {
-    return OPEN_WEATHER_API + 'forecast?units=metric&lat=' + weather.latitude + "&lon=" + weather.longitude + (isHourly ? "&cnt=7" : "") + getAuthParams()
+    return OPEN_WEATHER_API + 'forecast?units=metric&lat=' + weather.latitude + "&lon=" + weather.longitude
+        + (isHourly ? "&cnt=7" : "") + getAuthParams()
 }
 
 function searchLocationUrl(filter, language) {
@@ -48,8 +49,10 @@ function handleForecastResult(result, hourly, visibleCount, minimumHourlyRange) 
         var weather = getWeatherData(data)
         weather.timestamp = new Date(data.dt * 1000)
         weather.temperature = data.main.temp
+
         if (!hourly) {
-            weather.accumulatedPrecipitation = data.rain === undefined ? data.snow === undefined ? 0 : data.snow["3h"] : data.rain["3h"]
+            weather.accumulatedPrecipitation = data.rain === undefined ? (data.snow === undefined ? 0 : data.snow["3h"])
+                                                                       : data.rain["3h"]
             weather.maximumWindSpeed = Math.round(data.wind.speed)
             weather.windDirection = data.wind.deg
             weather.high = data.main.temp_max
@@ -101,6 +104,7 @@ function handleForecastResult(result, hourly, visibleCount, minimumHourlyRange) 
             middayDate.setHours(12)
             middayDate.setMinutes(0)
             var dateDiff = Math.abs(weather.timestamp - middayDate)
+
             for (i = 1; i < weathers.length; i++) {
                 precipitation += weather.accumulatedPrecipitation
                 temperature = weathers[i].temperature

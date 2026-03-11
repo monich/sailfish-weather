@@ -97,6 +97,7 @@ QtObject {
 
     property Timer timeout: Timer {
         id: timeout
+
         interval: 8000
         onTriggered: {
             if (request) {

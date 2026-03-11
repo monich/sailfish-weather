@@ -32,6 +32,7 @@ Item {
     height: mainLabel.height + Theme.paddingLarge + ((error || unauthorized) ? button.height : busyIndicator.height)
     opacity: enabled ? 1.0 : 0.0
     Behavior on opacity { OpacityAnimator { easing.type: Easing.InOutQuad;  duration: 400 } }
+
     Label {
         id: mainLabel
 
@@ -64,6 +65,7 @@ Item {
     }
     BusyIndicator {
         id: busyIndicator
+
         running: parent.opacity > 0 && !error && !unauthorized && !empty
         size: BusyIndicatorSize.Large
         anchors {
@@ -74,6 +76,7 @@ Item {
     }
     Button {
         id: button
+
         //% "Try again"
         text: qsTrId("weather-la-try_again")
         opacity: enabled ? 1.0 : 0.0
@@ -88,6 +91,7 @@ Item {
     }
     Component {
         id: animationHint
+
         PulleyAnimationHint {
             enabled: !error && !unauthorized
             flickable: root.flickable

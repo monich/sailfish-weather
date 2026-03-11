@@ -22,6 +22,7 @@ Row {
 
     Image {
         id: image
+
         anchors.verticalCenter: parent.verticalCenter
         source: weather && weather.weatherType.length > 0
                 ? "image://theme/icon-m-weather-" + weather.weatherType
@@ -33,6 +34,7 @@ Row {
 
     Label {
         id: temperatureLabel
+
         anchors.verticalCenter: image.verticalCenter
         text: weather ? TemperatureConverter.format(weather.temperature) : ""
         color: Theme.primaryColor
@@ -44,11 +46,13 @@ Row {
 
     SavedWeathersModel {
         id: savedWeathersModel
+
         autoRefresh: true
     }
 
     WeatherModel {
         id: weatherModel
+
         weather: savedWeathersModel.currentWeather
         savedWeathers: savedWeathersModel
     }

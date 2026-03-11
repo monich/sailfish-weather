@@ -53,6 +53,7 @@ public:
         engineeringEnglish->load("sailfish_components_weather_qt5_eng_en", "/usr/share/translations");
         translator->load(QLocale(), "sailfish_components_weather_qt5", "-", "/usr/share/translations");
     }
+
     virtual void registerTypes(const char *uri)
     {
         Q_UNUSED(uri)
