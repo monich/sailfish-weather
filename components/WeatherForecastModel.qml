@@ -12,29 +12,29 @@ ListModel {
 
     property bool hourly
     property var weather
-    property alias active: model.active
+    property alias active: request.active
     property date timestamp
-    property alias status: model.status
+    property alias status: request.status
     property int visibleCount: 6
     property int minimumHourlyRange: 4
     readonly property bool loading: forecastModel.status == Weather.Loading
     readonly property int locationId: weather ? weather.locationId : -1
 
     onLocationIdChanged: {
-        model.status = Weather.Null
+        request.status = Weather.Null
         clear()
     }
 
     function attemptReload(userRequested) {
-        model.attemptReload(userRequested)
+        request.attemptReload(userRequested)
     }
 
     function reload(userRequested) {
-        model.reload(userRequested)
+        request.reload(userRequested)
     }
 
-    readonly property WeatherRequest model: WeatherRequest {
-        id: model
+    readonly property WeatherRequest request: WeatherRequest {
+        id: request
 
         source: root.locationId > 0 ? WeatherProvider.forecastUrl(weather, hourly) : ""
 
