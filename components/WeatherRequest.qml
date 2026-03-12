@@ -17,15 +17,20 @@ QtObject {
     readonly property bool online: WeatherConnectionHelper.online
     property int status: Weather.Null
     property var request
+    property bool _completed
 
     signal requestFinished(var result)
 
     onTokenChanged: sendRequest()
-    onActiveChanged: if (active) attemptReload()
-    onOnlineChanged: if (online) attemptReload()
-    onSourceChanged: if (source.length > 0) attemptReload()
+    onActiveChanged: if (active && _completed) attemptReload()
+    onOnlineChanged: if (online && _completed) attemptReload()
+    onSourceChanged: if (source.length > 0 && _completed) attemptReload()
 
-    Component.onCompleted: WeatherProvider.fetchToken(this)
+    Component.onCompleted: {
+        WeatherProvider.fetchToken(this)
+        _completed = true
+        attemptReload()
+    }
 
     // Note: this is overridden in WeatherModel and WeatherForecastModel
     function updateAllowed() {
@@ -50,6 +55,8 @@ QtObject {
                 sendRequest()
             }
         } else if (source.length === 0) {
+            status = Weather.Null
+        } else if (!userRequested && WeatherConnectionHelper.status == WeatherConnectionHelper.Unknown) {
             status = Weather.Null
         } else {
             status = Weather.Error

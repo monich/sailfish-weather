@@ -50,6 +50,7 @@ WeatherRequest {
 
     source: locationId > 0 ? WeatherProvider.currentWeatherUrl(weather) : ""
 
+    // overriding WeatherRequest function
     function updateAllowed() {
         return status === Weather.Null || status === Weather.Error || UpdateUtils.updateAllowed()
     }
@@ -58,6 +59,7 @@ WeatherRequest {
         var weatherData = WeatherProvider.handleCurrentWeatherResult(result)
         if (weatherData === undefined) {
             status = Weather.Error
+            console.log("Error: request finished with undefined data")
             return
         }
 
@@ -85,7 +87,9 @@ WeatherRequest {
             }
 
             console.log("WeatherModel - could not obtain weather data",
-                        weather ? weather.city : "", weather ? weather.locationId : "")
+                        weather ? weather.city : "",
+                        weather ? weather.locationId : "",
+                        "status:", status)
         }
     }
 }

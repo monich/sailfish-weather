@@ -5,7 +5,7 @@
 
 Name:       sailfish-weather
 Summary:    Weather application
-Version:    1.0.3
+Version:    1.3.1
 Release:    1
 License:    BSD-3-Clause
 URL:        https://github.com/sailfishos/sailfish-weather
@@ -34,7 +34,7 @@ Requires: nemo-qml-plugin-systemsettings >= 0.2.26
 Requires: qt5-qtdeclarative-import-xmllistmodel
 Requires: qt5-qtdeclarative-import-positioning
 Requires: libkeepalive >= 1.7.0
-Requires: nemo-qml-plugin-connectivity >= 0.1.0
+Requires: nemo-qml-plugin-connectivity >= 0.2.24
 Requires: jolla-settings-accounts
 
 %{_oneshot_requires_post}
