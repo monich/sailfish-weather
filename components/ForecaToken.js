@@ -24,7 +24,6 @@ function fetchToken(model) {
         return true
     } else {
         if (!tokenRequest) {
-
             if (user.length === 0 || password.length === 0) {
                 var keyProvider = Qt.createQmlObject(
                             "import com.jolla.settings.accounts 1.0; StoredKeyProvider {}",
@@ -58,7 +57,8 @@ function fetchToken(model) {
                     for (var i = 0; i < pendingTokenRequests.length; i++) {
                         pendingTokenRequests[i].token = token
                         if (tokenRequest.status !== 200) {
-                            pendingTokenRequests[i].status = (tokenRequest.status === 401) ? Weather.Weather.Unauthorized : Weather.Weather.Error
+                            pendingTokenRequests[i].status = (tokenRequest.status === 401) ? Weather.Weather.Unauthorized
+                                                                                           : Weather.Weather.Error
                         }
                     }
                     pendingTokenRequests = []
