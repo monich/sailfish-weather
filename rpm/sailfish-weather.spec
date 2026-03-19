@@ -5,7 +5,7 @@
 
 Name:       sailfish-weather
 Summary:    Weather application
-Version:    1.3.1
+Version:    1.3.2
 Release:    1
 License:    BSD-3-Clause
 URL:        https://github.com/sailfishos/sailfish-weather
@@ -25,18 +25,18 @@ BuildRequires: %{name}-all-translations
 %define _all_translations_version %(rpm -q --queryformat "%%{version}-%%{release}" %{name}-all-translations)
 Requires: %{name}-all-translations >= %{_all_translations_version}
 
-Requires: sailfishsilica-qt5 >= 0.27.0
+Requires: sailfishsilica-qt5
 Requires: mapplauncherd-booster-silica-qt5
-Requires: sailfish-content-graphics >= 1.0.42
+Requires: sailfish-content-graphics
 Requires: sailfish-content-graphics-closed
 Requires: qt5-qtpositioning
-Requires: nemo-qml-plugin-systemsettings >= 0.2.26
 Requires: qt5-qtdeclarative-import-xmllistmodel
 Requires: qt5-qtdeclarative-import-positioning
-Requires: libkeepalive >= 1.7.0
+Requires: libkeepalive
+Requires: nemo-qml-plugin-systemsettings
 Requires: nemo-qml-plugin-connectivity >= 0.2.24
 Requires: jolla-settings-accounts
-
+Requires: sailfish-components-weather-qt5 == %{version}
 %{_oneshot_requires_post}
 
 %description
