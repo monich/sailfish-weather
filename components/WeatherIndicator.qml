@@ -18,7 +18,7 @@ Row {
     anchors.horizontalCenter: parent.horizontalCenter
     height: image.height
     spacing: Theme.paddingMedium
-    visible: !!weather
+    visible: !!weather && WeatherProvider.isLocationCompatible(weather)
 
     Image {
         id: image
@@ -48,6 +48,7 @@ Row {
         id: savedWeathersModel
 
         autoRefresh: true
+        provider: WeatherProvider.currentProvider()
     }
 
     WeatherModel {

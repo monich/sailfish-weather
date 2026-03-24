@@ -13,7 +13,7 @@ Page {
         id: weatherListView
 
         PullDownMenu {
-            visible: savedWeathersModel.currentWeather.status !== Weather.Unauthorized && WeatherProvider.isApiKeyProvided
+            visible: savedWeathersModel.currentWeather.status !== Weather.Unauthorized && WeatherProvider.isApiKeyProvided()
             MenuItem {
                 //% "New location"
                 text: qsTrId("weather-me-new_location")
@@ -50,7 +50,7 @@ Page {
                 visible: !placeholder.enabled
                          && currentWeatherAvailable
                          && currentWeatherModel.status === Weather.Unauthorized
-                         && WeatherProvider.isApiKeyProvided
+                         && WeatherProvider.isApiKeyProvided()
                 x: Theme.horizontalPageMargin
                 width: parent.width - 2*x
                 horizontalAlignment: Text.AlignHCenter
@@ -68,7 +68,7 @@ Page {
             }
 
             Label {
-                visible: !placeholder.enabled && currentWeatherAvailable && !WeatherProvider.isApiKeyProvided
+                visible: !placeholder.enabled && currentWeatherAvailable && !WeatherProvider.isApiKeyProvided()
                 x: Theme.horizontalPageMargin
                 width: parent.width - 2*x
                 horizontalAlignment: Text.AlignHCenter
@@ -141,18 +141,19 @@ Page {
         model: savedWeathersModel
         delegate: ListItem {
             id: savedWeatherItem
+            readonly property bool compatible: WeatherProvider.isLocationCompatible(model)
+            visible: WeatherProvider.isApiKeyProvided() && compatible
 
             function remove() {
-                savedWeathersModel.remove(locationId)
+                savedWeathersModel.remove(locationId, model.provider)
             }
-            visible: WeatherProvider.isApiKeyProvided
             ListView.onAdd: AddAnimation { target: savedWeatherItem }
             ListView.onRemove: animateRemoval()
             menu: contextMenuComponent
-            contentHeight: Math.max(Theme.itemSizeMedium, labelColumn.implicitHeight + 2 * Theme.paddingMedium)
+            contentHeight: visible ? Math.max(Theme.itemSizeMedium, labelColumn.implicitHeight + 2 * Theme.paddingMedium) : 0
             onClicked: {
-                pageStack.animatorPush("WeatherPage.qml", {"weather": savedWeathersModel.get(model.locationId),
-                                           "weatherModel": weatherModels[model.locationId] })
+                pageStack.animatorPush("WeatherPage.qml", {"weather": savedWeathersModel.get(model.locationId, model.provider),
+                                           "weatherModel": weatherModels[weatherApplication.weatherModelKey(model.provider, model.locationId)] })
             }
 
             Image {
@@ -240,6 +241,7 @@ Page {
                                 if (!current || current.locationId !== model.locationId) {
                                     var weather = {
                                         "locationId": model.locationId,
+                                        "provider": model.provider,
                                         "latitude": model.latitude,
                                         "longitude": model.longitude,
                                         "city": model.city,

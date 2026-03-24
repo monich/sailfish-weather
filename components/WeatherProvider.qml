@@ -66,6 +66,26 @@ QtObject {
         }
     }
 
+    function locationProvider(weather) {
+        if (weather === undefined || weather === null) {
+            return name.FORECA
+        }
+
+        return weather.provider ? weather.provider : name.FORECA
+    }
+
+    function isLocationCompatible(weather) {
+        return locationProvider(weather) === currentProvider()
+    }
+
+    function requestHeaders() {
+        if (this.backend && this.backend.requestHeaders) {
+            return this.backend.requestHeaders()
+        }
+
+        return {}
+    }
+
     function providerImage() {
         return this.backend.providerImage()
     }

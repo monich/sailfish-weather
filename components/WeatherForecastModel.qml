@@ -36,7 +36,9 @@ ListModel {
     readonly property WeatherRequest request: WeatherRequest {
         id: request
 
-        source: root.locationId > 0 ? WeatherProvider.forecastUrl(weather, hourly) : ""
+        source: root.locationId > 0 && WeatherProvider.isLocationCompatible(weather)
+                ? WeatherProvider.forecastUrl(weather, hourly)
+                : ""
 
         // update allowed every half hour for hourly weather, every 3 hours for daily weather
         property int maxUpdateInterval: hourly ? 30*60*1000 : 180*60*1000

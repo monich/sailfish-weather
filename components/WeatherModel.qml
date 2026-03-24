@@ -12,6 +12,7 @@ WeatherRequest {
     property var savedWeathers
     property date timestamp: new Date()
     readonly property int locationId: !!weather ? weather.locationId : -1
+    readonly property string provider: weather ? WeatherProvider.locationProvider(weather) : WeatherProvider.name.FORECA
 
     readonly property WeatherRequest latestObservation: WeatherRequest {
         property var weatherJson
@@ -19,7 +20,7 @@ WeatherRequest {
         property int requestedLocationId: -1
 
         active: false
-        source: requestedLocationId > 0
+        source: requestedLocationId > 0 && weatherJson && WeatherProvider.isLocationCompatible(weatherJson)
                 ? WeatherProvider.latestObservationUrl(weatherJson)
                 : ""
 
@@ -39,7 +40,8 @@ WeatherRequest {
         onStatusChanged: {
             if (status === Weather.Error || status == Weather.Unauthorized) {
                 if (savedWeathers) {
-                    savedWeathers.setErrorStatus(requestedLocationId, status)
+                    savedWeathers.setErrorStatus(requestedLocationId, status,
+                                                 WeatherProvider.locationProvider(weatherJson))
                 }
 
                 console.log("WeatherModel - could not obtain weather station data",
@@ -48,7 +50,9 @@ WeatherRequest {
         }
     }
 
-    source: locationId > 0 ? WeatherProvider.currentWeatherUrl(weather) : ""
+    source: locationId > 0 && WeatherProvider.isLocationCompatible(weather)
+            ? WeatherProvider.currentWeatherUrl(weather)
+            : ""
 
     // overriding WeatherRequest function
     function updateAllowed() {
@@ -67,6 +71,7 @@ WeatherRequest {
 
         var json = {
             "locationId": weather.locationId,
+            "provider": WeatherProvider.locationProvider(weather),
             "latitude": weather.latitude,
             "longitude": weather.longitude,
             "temperature": weatherData.temperature,
@@ -83,7 +88,8 @@ WeatherRequest {
     onStatusChanged: {
         if (status === Weather.Error || status == Weather.Unauthorized) {
             if (savedWeathers) {
-                savedWeathers.setErrorStatus(locationId, status)
+                savedWeathers.setErrorStatus(locationId, status,
+                                             WeatherProvider.locationProvider(weather))
             }
 
             console.log("WeatherModel - could not obtain weather data",

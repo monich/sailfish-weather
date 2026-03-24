@@ -20,9 +20,9 @@ include(translations/translations.pri)
 
 OTHER_FILES = \
     org.sailfishos.weather.service \
-    oneshot/sailfish-weather-move-data-to-new-location
+    oneshot/sailfish-weather-remove-obsolete-data
 
-oneshot.files = oneshot/sailfish-weather-move-data-to-new-location
+oneshot.files = oneshot/sailfish-weather-remove-obsolete-data
 oneshot.path  = /usr/lib/oneshot.d
 
 images.files = images/open-weather*.png

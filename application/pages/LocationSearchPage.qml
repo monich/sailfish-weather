@@ -133,6 +133,7 @@ Page {
             onClicked: {
                 var location = {
                     "locationId": model.id,
+                    "provider": WeatherProvider.currentProvider(),
                     "latitude": model.latitude,
                     "longitude": model.longitude,
                     "city": model.name,
@@ -142,7 +143,8 @@ Page {
                     "adminArea2": model.adminArea2,
                 }
                 if (!savedWeathersModel.currentWeather
-                        || savedWeathersModel.currentWeather.status === Weather.Error) {
+                        || savedWeathersModel.currentWeather.status === Weather.Error
+                        || !WeatherProvider.isLocationCompatible(savedWeathersModel.currentWeather)) {
                     savedWeathersModel.setCurrentWeather(location)
                 } else {
                     savedWeathersModel.addLocation(location)

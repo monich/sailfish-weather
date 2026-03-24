@@ -19,6 +19,7 @@ class Weather : public QObject
     Q_ENUMS(Status)
     Q_PROPERTY(Status status READ status NOTIFY statusChanged)
     Q_PROPERTY(int locationId READ locationId CONSTANT)
+    Q_PROPERTY(QString provider READ provider CONSTANT)
     Q_PROPERTY(float latitude READ latitude CONSTANT)
     Q_PROPERTY(float longitude READ longitude CONSTANT)
     Q_PROPERTY(QString city READ city CONSTANT)
@@ -47,6 +48,9 @@ public:
         : QObject(parent),
           m_status(Loading),
           m_locationId(locationMap["locationId"].toInt()),
+          m_provider(locationMap["provider"].toString().isEmpty()
+                         ? QStringLiteral("foreca")
+                         : locationMap["provider"].toString()),
           m_latitude(locationMap["latitude"].toFloat()),
           m_longitude(locationMap["longitude"].toFloat()),
           m_city(locationMap["city"].toString()),
@@ -64,6 +68,7 @@ public:
     ~Weather() {}
 
     int locationId() const { return m_locationId; }
+    QString provider() const { return m_provider; }
     float latitude() const { return m_latitude; }
     float longitude() const { return m_longitude; }
     Status status() const { return m_status; }
@@ -163,6 +168,7 @@ signals:
 private:
     Status m_status;
     int m_locationId;
+    QString m_provider;
     float m_latitude;
     float m_longitude;
     QString m_city;

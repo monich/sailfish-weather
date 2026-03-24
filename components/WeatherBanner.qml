@@ -54,7 +54,7 @@ ListItem {
 
     visible: enabled
     contentHeight: enabled ? column.height : 0
-    enabled: weather && weather.populated
+    enabled: weather && weather.populated && WeatherProvider.isLocationCompatible(weather)
 
     menu: Component {
         ContextMenu {
@@ -416,6 +416,7 @@ ListItem {
         id: savedWeathersModel
 
         autoRefresh: true
+        provider: WeatherProvider.currentProvider()
     }
 
     WeatherModel {

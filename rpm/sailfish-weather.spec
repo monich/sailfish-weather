@@ -71,7 +71,7 @@ install -m 644 -p %{SOURCE1} %{buildroot}%{_datadir}/mapplauncherd/privileges.d/
 
 %post
 if [ $1 -eq 2 ]; then
-    add-oneshot --all-users sailfish-weather-move-data-to-new-location || :
+    add-oneshot --all-users sailfish-weather-remove-obsolete-data || :
 fi
 
 %files
@@ -86,7 +86,7 @@ fi
 %{_datadir}/dbus-1/services/org.sailfishos.weather.service
 %{_datadir}/mapplauncherd/privileges.d/*
 %{_libdir}/qt5/qml/org/sailfishos/weather/settings
-%{_oneshotdir}/sailfish-weather-move-data-to-new-location
+%{_oneshotdir}/sailfish-weather-remove-obsolete-data
 
 %files -n sailfish-components-weather-qt5
 %dir %{_libdir}/qt5/qml/Sailfish/Weather

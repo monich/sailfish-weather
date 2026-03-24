@@ -14,7 +14,7 @@ CoverBackground {
 
     property bool current: true
     property bool ready: loaded && !error  && !unauthorized
-    property bool loaded: weather
+    property bool loaded: weather && WeatherProvider.isLocationCompatible(weather)
     property bool error: loaded && savedWeathersModel.currentWeather.status == Weather.Error
     property bool apiKeyProvided: WeatherProvider.isApiKeyProvided
     property bool unauthorized: loaded && savedWeathersModel.currentWeather.status == Weather.Unauthorized
