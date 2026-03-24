@@ -7,6 +7,7 @@
 
 import QtQuick 2.0
 import Sailfish.Weather 1.0
+import "WeatherResponseCache.js" as WeatherResponseCache
 
 QtObject {
     id: root
@@ -14,17 +15,44 @@ QtObject {
     property string token
     property bool active: true
     property string source
+    property string responseType: "json"
     readonly property bool online: WeatherConnectionHelper.online
     property int status: Weather.Null
     property var request
     property bool _completed
+    property string _inflightUrl: ""
 
     signal requestFinished(var result)
 
-    onTokenChanged: sendRequest()
-    onActiveChanged: if (active && _completed) attemptReload()
+    onTokenChanged: {
+        if (_inflightUrl.length > 0 && getUrl() !== _inflightUrl) {
+            WeatherResponseCache.releaseInflight(_inflightUrl, root)
+            _inflightUrl = ""
+        }
+        sendRequest()
+    }
+    onActiveChanged: {
+        if (!active && _inflightUrl.length > 0) {
+            WeatherResponseCache.releaseInflight(_inflightUrl, root)
+            _inflightUrl = ""
+        }
+        if (active && _completed) attemptReload()
+    }
     onOnlineChanged: if (online && _completed) attemptReload()
-    onSourceChanged: if (source.length > 0 && _completed) attemptReload()
+    onSourceChanged: {
+        if (_inflightUrl.length > 0 && getUrl() !== _inflightUrl) {
+            WeatherResponseCache.releaseInflight(_inflightUrl, root)
+            _inflightUrl = ""
+        }
+        if (source.length > 0 && _completed) attemptReload()
+    }
+
+    Component.onDestruction: {
+        if (_inflightUrl.length > 0) {
+            WeatherResponseCache.releaseInflight(_inflightUrl, root)
+            _inflightUrl = ""
+        }
+    }
 
     Component.onCompleted: {
         WeatherProvider.fetchToken(this)
@@ -70,6 +98,25 @@ QtObject {
 
     function sendRequest() {
         if (source.length > 0 && !request) {
+            const url = getUrl()
+            var cachedData = WeatherResponseCache.freshResponse(url)
+            if (cachedData !== undefined) {
+                console.log("WeatherRequest: serving fresh cached response for", url)
+                requestFinished(cachedData)
+                if (status === Weather.Loading) {
+                    status = Weather.Ready
+                }
+                return
+            }
+
+            if (!WeatherResponseCache.beginInflight(url, root)) {
+                _inflightUrl = url
+                status = Weather.Loading
+                return
+            }
+
+            _inflightUrl = url
+
             status = Weather.Loading
             request = new XMLHttpRequest()
             timeout.restart()
@@ -79,26 +126,65 @@ QtObject {
                 if (request.readyState == XMLHttpRequest.DONE) {
                     timeout.stop()
                     if (request.status === 200) {
-                        var data = JSON.parse(request.responseText)
-                        requestFinished(data)
-                        status = Weather.Ready
+                        console.log("WeatherRequest: received HTTP 200 for", url)
+                        var data = responseType === "text" ? request.responseText : JSON.parse(request.responseText)
+                        WeatherResponseCache.store(url, data, WeatherResponseCache.responseHeaders(request))
+                        notifyInflightSuccess(url, data)
+                    } else if (request.status === 304) {
+                        console.log("WeatherRequest: received HTTP 304 for", url)
+                        WeatherResponseCache.updateMetadata(url, WeatherResponseCache.responseHeaders(request))
+                        var cachedResponse = WeatherResponseCache.cachedResponse(url)
+                        if (cachedResponse !== undefined) {
+                            notifyInflightSuccess(url, cachedResponse)
+                        } else {
+                            console.warn("Received HTTP 304 without cached weather data")
+                            notifyInflightFailure(url, Weather.Error)
+                        }
                     } else if (request.status === 401) {
                         console.warn("Unauthorized request")
-                        status = Weather.Unauthorized
+                        notifyInflightFailure(url, Weather.Unauthorized)
                     } else {
                         console.warn("Failed to obtain weather data. HTTP error code: " + request.status)
-                        status = Weather.Error
+                        notifyInflightFailure(url, Weather.Error)
                     }
                     request = undefined
+                    _inflightUrl = ""
                 }
             }
-            const url = getUrl()
             request.open("GET", url)
             var headers = WeatherProvider.requestHeaders()
+            var cacheHeaders = WeatherResponseCache.conditionalHeaders(url)
+            for (var name in cacheHeaders) {
+                headers[name] = cacheHeaders[name]
+            }
+            console.log("WeatherRequest: sending request for", url, "with headers", JSON.stringify(headers))
             for (var name in headers) {
                 request.setRequestHeader(name, headers[name])
             }
             request.send()
+        }
+    }
+
+    function notifyInflightSuccess(url, data) {
+        var waiters = WeatherResponseCache.takeInflight(url)
+        for (var i = 0; i < waiters.length; ++i) {
+            if (waiters[i] && waiters[i].getUrl && waiters[i].getUrl() === url) {
+                waiters[i]._inflightUrl = ""
+                waiters[i].requestFinished(data)
+                if (waiters[i].status === Weather.Loading) {
+                    waiters[i].status = Weather.Ready
+                }
+            }
+        }
+    }
+
+    function notifyInflightFailure(url, failureStatus) {
+        var waiters = WeatherResponseCache.takeInflight(url)
+        for (var i = 0; i < waiters.length; ++i) {
+            if (waiters[i] && waiters[i].getUrl && waiters[i].getUrl() === url) {
+                waiters[i]._inflightUrl = ""
+                waiters[i].status = failureStatus
+            }
         }
     }
 
@@ -112,10 +198,12 @@ QtObject {
         interval: 8000
         onTriggered: {
             if (request) {
+                var url = getUrl()
                 request.abort()
                 request = undefined
+                notifyInflightFailure(url, Weather.Error)
+                _inflightUrl = ""
                 console.warn("Failed to obtain weather data. The request timed out after 8 seconds")
-                status = Weather.Error
             }
         }
     }
