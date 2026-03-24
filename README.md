@@ -9,4 +9,6 @@ Worth noting that GitHub Issues provides a bug report template when creating a n
 
 Find more information from [Issue Tracker](https://github.com/sailfishos/issue-tracker).
 
+If one of the bundled weather backends is bothering your weather service, please accept our apologies and contact us at weather@jolla.com to sort it out.
+
 Happy hacking.

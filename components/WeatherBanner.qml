@@ -345,7 +345,26 @@ ListItem {
                 Row {
                     id: footerRow
 
+                    Label {
+                        //: Indicates when the shown forecast information was updated
+                        //: Displayed in the provider footer, e.g. ", updated 12:59, 1.3.2020"
+                        //% ", updated %1"
+                        text: forecastModel ? qsTrId("weather-la-comma_updated_time")
+                                              .arg(Format.formatDate(forecastModel.timestamp, Format.Timepoint))
+                                            : ""
+                        anchors.verticalCenter: parent.verticalCenter
+                        font.pixelSize: Theme.fontSizeExtraSmall
+                        highlighted: weatherBanner.highlighted || footer.down
+                        visible: _error && _forecastCount > 0
+                    }
+                    Item {
+                        height: 1
+                        width: Theme.paddingSmall
+                        visible: _error && _forecastCount > 0
+                    }
                     BusyIndicator {
+                        id: updateIndicator
+
                         property bool loading: weatherBanner.loading && _forecastCount > 0
 
                         size: BusyIndicatorSize.Small
@@ -365,25 +384,26 @@ ListItem {
                     }
                     Item {
                         height: 1
-                        width: Theme.paddingMedium
+                        width: Theme.paddingSmall
+                        visible: updateIndicator.loading || updateIndicator.minimumTimeout.running
                     }
+                    Label {
+                        id: attributionLabel
 
+                        anchors.verticalCenter: parent.verticalCenter
+                        font.pixelSize: Theme.fontSizeTiny
+                        text: WeatherProvider.shortAttributionText()
+                        color: highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
+                        visible: expanded && text.length > 0
+                    }
+                    Item {
+                        height: 1
+                        width: Theme.paddingSmall
+                        visible: attributionLabel.visible
+                    }
                     Image {
                         anchors.verticalCenter: parent.verticalCenter
                         source: WeatherProvider.smallProviderImage() + (highlighted ? Theme.highlightColor : Theme.primaryColor)
-                    }
-                    Label {
-                        //: Indicates when the shown forecast information was updated
-                        //: Displayed right after small Foreca logo, i.e. "FORECA, updated 12:59, 1.3.2020"
-                        //% ", updated %1"
-                        text: forecastModel ? qsTrId("weather-la-comma_updated_time")
-                                              .arg(Format.formatDate(forecastModel.timestamp, Format.Timepoint))
-                                            : ""
-                        anchors.verticalCenter: parent.verticalCenter
-                        font.pixelSize: Theme.fontSizeExtraSmall
-                        highlighted: weatherBanner.highlighted || footer.down
-
-                        visible: _error && _forecastCount > 0
                     }
                 }
             }
