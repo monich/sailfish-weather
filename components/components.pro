@@ -26,17 +26,17 @@ HEADERS += weather.h \
 
 import.files = *.qml *.js qmldir
 import.path = $$TARGETPATH
-backend.files = $$PWD/../backends/*.qml
+backend.files = $$PWD/../backends/*.qml $$PWD/../backends/*.js
 backend.path = /usr/share/sailfish-weather/backends
 target.path = $$TARGETPATH
 
-OTHER_FILES += *.qml *.js $$PWD/../backends/*.qml
+OTHER_FILES += *.qml *.js $$PWD/../backends/*.qml $$PWD/../backends/*.js
 
 TS_FILE = $$OUT_PWD/sailfish_components_weather_qt5.ts
 EE_QM = $$OUT_PWD/sailfish_components_weather_qt5_eng_en.qm
 
 translations.commands += lupdate $$PWD $$PWD/../backends -ts $$TS_FILE
-translations.depends = $$PWD/*.qml $$PWD/../backends/*.qml
+translations.depends = $$PWD/*.qml $$PWD/../backends/*.qml $$PWD/../backends/*.js
 translations.CONFIG += no_check_exist no_link
 translations.output = $$TS_FILE
 translations.input = .
