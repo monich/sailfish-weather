@@ -55,7 +55,8 @@ Item {
         opacity: 0.5
         anchors {
             bottom: parent.bottom
-            bottomMargin: Math.round(Theme.paddingSmall/2)
+            // Keep clear of the bottom action icon without floating the provider badge too high.
+            bottomMargin: Math.round(Theme.itemSizeSmall / 2)
             horizontalCenter: parent.horizontalCenter
         }
         source: WeatherProvider.smallProviderImage() + (highlighted ? Theme.highlightColor : Theme.primaryColor)
