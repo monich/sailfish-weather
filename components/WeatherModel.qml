@@ -12,7 +12,14 @@ WeatherRequest {
     property var savedWeathers
     property date timestamp: new Date()
     readonly property int locationId: !!weather ? weather.locationId : -1
-    readonly property string provider: weather ? WeatherProvider.locationProvider(weather) : WeatherProvider.name.FORECA
+    readonly property string provider: weather ? WeatherProvider.locationProvider(weather) : WeatherProvider.defaultProviderId
+
+    onWeatherChanged: {
+        status = Weather.Null
+        latestObservation.active = false
+        latestObservation.requestedLocationId = -1
+        latestObservation.weatherJson = undefined
+    }
 
     readonly property WeatherRequest latestObservation: WeatherRequest {
         property var weatherJson
@@ -34,7 +41,9 @@ WeatherRequest {
             if (stationName.length > 0) {
                 weatherJson["station"] = stationName
             }
-            savedWeathersModel.update(requestedLocationId, weatherJson)
+            if (savedWeathers) {
+                savedWeathers.update(requestedLocationId, weatherJson)
+            }
         }
 
         onStatusChanged: {
@@ -80,6 +89,23 @@ WeatherRequest {
             "description": weatherData.description,
             "timestamp": weatherData.timestamp
         }
+        var observationUrl = WeatherProvider.latestObservationUrl(json)
+
+        // Some backends reuse the same endpoint for both current conditions and
+        // latest observation details. Update immediately so the UI doesn't stay
+        // stuck in loading while waiting for a redundant second request.
+        if (!observationUrl || observationUrl.length === 0 || observationUrl === source) {
+            var stationName = WeatherProvider.handleObservationResult(result)
+            if (stationName.length > 0) {
+                json["station"] = stationName
+            }
+            if (savedWeathers) {
+                savedWeathers.update(locationId, json)
+            }
+            latestObservation.active = false
+            return
+        }
+
         latestObservation.weatherJson = json
         latestObservation.requestedLocationId = locationId
         latestObservation.active = true

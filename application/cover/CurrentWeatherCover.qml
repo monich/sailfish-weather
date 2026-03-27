@@ -12,8 +12,20 @@ Item {
         x: Theme.paddingLarge
         width: parent.width - 2*x
         topPadding: Theme.paddingLarge
-        text: (weather.status === Weather.Error || weather.status === Weather.Unauthorized) ? weather.city : TemperatureConverter.format(weather.temperature) + " " + weather.city
+        text: {
+            if (!weather) {
+                return ""
+            }
+
+            return (weather.status === Weather.Error || weather.status === Weather.Unauthorized)
+                    ? weather.city
+                    : TemperatureConverter.format(weather.temperature) + " " + weather.city
+        }
         description: {
+            if (!weather) {
+                return ""
+            }
+
             if (weather.status === Weather.Error) {
                 //% "Loading failed"
                 return qsTrId("weather-la-loading_failed")

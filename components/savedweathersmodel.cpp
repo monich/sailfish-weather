@@ -151,6 +151,14 @@ void SavedWeathersModel::load()
             endRemoveRows();
         }
     }
+
+    if (!m_currentWeather && !m_savedWeathers.isEmpty()) {
+        beginRemoveRows(QModelIndex(), 0, 0);
+        m_currentWeather = m_savedWeathers.takeFirst();
+        endRemoveRows();
+        emit currentWeatherChanged();
+    }
+
     if (m_savedWeathers.count() != oldCount) {
         emit countChanged();
     }

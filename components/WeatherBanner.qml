@@ -22,7 +22,7 @@ ListItem {
                                                      : (dailyForecastLoader.item ? dailyForecastLoader.item.model : null)
     readonly property bool loading: forecastModel && forecastModel.status === Weather.Loading
     readonly property bool _error: forecastModel && forecastModel.status === Weather.Error
-    readonly property bool _apiKeyProvided: WeatherProvider.isApiKeyProvided
+    readonly property bool _apiKeyProvided: WeatherProvider.isApiKeyProvided()
     readonly property bool _unauthorized: forecastModel && forecastModel.status === Weather.Unauthorized
     readonly property int _forecastCount: forecastModel ? forecastModel.count : 0
 
@@ -346,7 +346,7 @@ ListItem {
                     id: footerRow
 
                     BusyIndicator {
-                        property bool loading: weatherBanner.loading && forecastModel.count > 0
+                        property bool loading: weatherBanner.loading && _forecastCount > 0
 
                         size: BusyIndicatorSize.Small
                         anchors.verticalCenter: parent.verticalCenter

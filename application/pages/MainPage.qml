@@ -9,11 +9,18 @@ import Sailfish.Weather 1.0
 import Nemo.DBus 2.0
 
 Page {
+    readonly property bool noProviderSelected: WeatherProvider.currentProvider().length === 0
+    readonly property bool hasCurrentWeather: !!savedWeathersModel.currentWeather
+    readonly property bool loadingCurrentWeather: hasCurrentWeather && !currentWeatherAvailable
+    readonly property bool emptyState: !hasCurrentWeather && savedWeathersModel.count === 0
+
     SilicaListView {
         id: weatherListView
 
         PullDownMenu {
-            visible: savedWeathersModel.currentWeather.status !== Weather.Unauthorized && WeatherProvider.isApiKeyProvided()
+            visible: (!savedWeathersModel.currentWeather
+                      || savedWeathersModel.currentWeather.status !== Weather.Unauthorized)
+                     && WeatherProvider.isApiKeyProvided()
             MenuItem {
                 //% "New location"
                 text: qsTrId("weather-me-new_location")
@@ -68,7 +75,10 @@ Page {
             }
 
             Label {
-                visible: !placeholder.enabled && currentWeatherAvailable && !WeatherProvider.isApiKeyProvided()
+                visible: !placeholder.enabled
+                         && !noProviderSelected
+                         && currentWeatherAvailable
+                         && !WeatherProvider.isApiKeyProvided()
                 x: Theme.horizontalPageMargin
                 width: parent.width - 2*x
                 horizontalAlignment: Text.AlignHCenter
@@ -98,10 +108,12 @@ Page {
             y: weatherListView.originY
                + (currentWeatherAvailable ? Math.round(parent.height / 12) + weatherListView.headerItem.height
                                           : Math.round(Screen.height / 4))
-            enabled: !currentWeatherAvailable || (savedWeathersModel.count === 0 && counter.active)
+            enabled: loadingCurrentWeather
+                     || emptyState
+                     || (currentWeatherAvailable && savedWeathersModel.count === 0 && counter.active)
             error: savedWeathersModel.currentWeather && savedWeathersModel.currentWeather.status === Weather.Error
             unauthorized: savedWeathersModel.currentWeather && savedWeathersModel.currentWeather.status === Weather.Unauthorized
-            empty: !savedWeathersModel.currentWeather || savedWeathersModel.count == 0
+            empty: emptyState
             text: {
                 if (error) {
                     //% "Loading failed"
@@ -110,7 +122,10 @@ Page {
                     //% "Invalid authentication credentials"
                     return qsTrId("weather-la-unauthorized")
                 } else if (empty) {
-                    if (currentWeatherAvailable) {
+                    if (noProviderSelected) {
+                        //% "No weather provider selected. Open Settings to choose one."
+                        return qsTrId("weather-la-no_weather_provider_selected")
+                    } else if (currentWeatherAvailable) {
                         if (counter.active) {
                             //% "Pull down to add another weather location"
                             return qsTrId("weather-la-pull_down_to_add_another_location")
@@ -126,7 +141,11 @@ Page {
                     return qsTrId("weather-la-loading")
                 }
             }
-            onReload: weatherApplication.reload(savedWeathersModel.currentWeather.locationId)
+            onReload: {
+                if (savedWeathersModel.currentWeather) {
+                    weatherApplication.reload(savedWeathersModel.currentWeather.locationId)
+                }
+            }
 
             // Only show pull down to add another location hint twice on app startup
             FirstTimeUseCounter {

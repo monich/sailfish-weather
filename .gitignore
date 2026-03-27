@@ -10,3 +10,5 @@ moc_*
 Makefile
 *.ts
 *.qm
+/application/sailfish-weather
+/*.list

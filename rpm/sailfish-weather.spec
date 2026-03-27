@@ -37,6 +37,7 @@ Requires: nemo-qml-plugin-systemsettings
 Requires: nemo-qml-plugin-connectivity >= 0.2.24
 Requires: jolla-settings-accounts
 Requires: sailfish-components-weather-qt5 == %{version}
+Requires: lipstick-jolla-home-qt5-weather-widget-settings
 %{_oneshot_requires_post}
 
 %description

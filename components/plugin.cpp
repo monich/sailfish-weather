@@ -6,10 +6,12 @@
 #include <QtQml>
 #include <QQmlExtensionPlugin>
 #include <QQmlEngine>
+#include <QQmlContext>
 #include <QTranslator>
 #include <QGuiApplication>
 #include <QLocale>
 
+#include "backendregistry.h"
 #include "weather.h"
 #include "savedweathersmodel.h"
 
@@ -45,6 +47,9 @@ public:
         AppTranslator *translator = new AppTranslator(engine);
         engineeringEnglish->load("sailfish_components_weather_qt5_eng_en", "/usr/share/translations");
         translator->load(QLocale(), "sailfish_components_weather_qt5", "-", "/usr/share/translations");
+
+        engine->rootContext()->setContextProperty(QStringLiteral("BackendRegistry"),
+                                                  new BackendRegistry(engine));
     }
 
     virtual void registerTypes(const char *uri)
@@ -57,4 +62,3 @@ public:
 };
 
 #include "plugin.moc"
-

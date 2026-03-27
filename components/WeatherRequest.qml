@@ -94,6 +94,10 @@ QtObject {
             }
             const url = getUrl()
             request.open("GET", url)
+            var headers = WeatherProvider.requestHeaders()
+            for (var name in headers) {
+                request.setRequestHeader(name, headers[name])
+            }
             request.send()
         }
     }
