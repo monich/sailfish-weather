@@ -2,6 +2,16 @@
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
+// Shared descriptions for the app's normalized weather codes.
+//
+// This code space is the long-standing Sailfish Weather internal/icon scheme,
+// originally derived from the Foreca integration. Backends that emit these
+// normalized codes can reuse this table directly for user-facing descriptions.
+//
+// The same normalized codes also drive icon selection, so a backend may already
+// map its native conditions into this scheme for graphics while still keeping a
+// separate provider-specific description table. OpenWeather currently does that.
+
 function description(code) {
     var localizations = {
         //% "Clear"

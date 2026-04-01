@@ -225,8 +225,8 @@ The cache is in-memory only:
 
 ## Current Examples
 
-Backend implementations live under `backends/` once they have been migrated.
-Use the migrated backends in that directory as reference implementations for:
+Current backend implementations live under `backends/`.
+Use the backends in that directory as reference implementations for:
 - self-described metadata
 - URL construction and response parsing
 - provider branding hooks
