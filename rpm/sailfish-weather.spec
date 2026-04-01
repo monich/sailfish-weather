@@ -129,6 +129,7 @@ fi
 %{_libdir}/qt5/qml/Sailfish/Weather/*
 %dir %{_datadir}/sailfish-weather/backends
 %{_datadir}/sailfish-weather/backends/BackendUtils.js
+%{_datadir}/sailfish-weather/backends/GeoNames.js
 %{_datadir}/sailfish-weather/backends/WeatherTypeDescriptions.js
 %{_datadir}/translations/sailfish_components_weather_qt5_eng_en.qm
 

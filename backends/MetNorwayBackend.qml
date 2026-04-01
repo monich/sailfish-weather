@@ -4,11 +4,11 @@
 
 import QtQuick 2.6
 import "BackendUtils.js" as BackendUtils
+import "GeoNames.js" as GeoNames
 import "WeatherTypeDescriptions.js" as WeatherTypeDescriptions
 
 QtObject {
     readonly property string metForecastApi: "https://api.met.no/weatherapi/locationforecast/2.0/complete"
-    readonly property string openMeteoGeocodingApi: "https://geocoding-api.open-meteo.com/v1/search"
 
     function providerId() {
         return "met_norway"
@@ -73,9 +73,15 @@ QtObject {
     }
 
     function searchLocationUrl(filter, language) {
-        return openMeteoGeocodingApi + "?count=20&name="
-                + encodeURIComponent(filter.toLowerCase())
-                + (language && language.length > 0 ? "&language=" + encodeURIComponent(language) : "")
+        return GeoNames.searchLocationUrl(filter, language)
+    }
+
+    function reverseLocationResponseType() {
+        return "json"
+    }
+
+    function reverseLocationUrl(latitude, longitude, language) {
+        return GeoNames.reverseLocationUrl(latitude, longitude, language)
     }
 
     function handleCurrentWeatherResult(result) {
@@ -180,48 +186,11 @@ QtObject {
     }
 
     function handleSearchLocationResult(result) {
-        if (result === undefined || result === null) {
-            return undefined
-        }
+        return GeoNames.handleSearchLocationResult(result)
+    }
 
-        var results = result.results
-        if (results === undefined || results === null) {
-            return undefined
-        }
-        if (results.length === 0) {
-            return []
-        }
-
-        var locations = []
-        for (var i = 0; i < results.length; i++) {
-            var location = results[i]
-            var lat = parseFloat(location.latitude)
-            var lon = parseFloat(location.longitude)
-            if (isNaN(lat) || isNaN(lon)) {
-                continue
-            }
-            var locationId = parseInt(location.id, 10)
-            if (!isFinite(locationId) || locationId <= 0) {
-                locationId = hashLatLon(lat, lon, 15, 0x4d4554)
-            }
-
-            var admin1 = location.admin1 || ""
-            var admin2 = location.admin2 || ""
-            var admin3 = location.admin3 || ""
-            var admin4 = location.admin4 || ""
-            locations[locations.length] = {
-                "id": locationId,
-                "name": location.name || "",
-                "state": admin1,
-                "country": location.country || "",
-                "adminArea": admin1,
-                "adminArea2": admin2 || admin3 || admin4,
-                "latitude": lat,
-                "longitude": lon
-            }
-        }
-
-        return locations.length > 0 ? locations : undefined
+    function handleReverseLocationResult(result, latitude, longitude) {
+        return GeoNames.handleReverseLocationResult(result, latitude, longitude)
     }
 
     function handleObservationResult(result) {
@@ -420,17 +389,6 @@ QtObject {
             console.warn("Invalid weather code")
             return ""
         }
-    }
-
-    function hashLatLon(lat, lon, precisionBits, seed) {
-        precisionBits = precisionBits || 16
-        seed = seed || 0
-
-        var latScaled = Math.floor(((lat + 90) / 180) * (1 << precisionBits))
-        var lonScaled = Math.floor(((lon + 180) / 360) * (1 << precisionBits))
-        var hash = ((latScaled << precisionBits) | lonScaled) ^ seed
-        hash = hash & 0x7fffffff
-        return hash > 0 ? hash : 1
     }
 
     function displayName(name) {
