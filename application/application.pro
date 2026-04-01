@@ -25,7 +25,7 @@ OTHER_FILES = \
 oneshot.files = oneshot/sailfish-weather-remove-obsolete-data
 oneshot.path  = /usr/lib/oneshot.d
 
-images.files = images/*
+images.files = images/*.png
 images.path =  /usr/share/themes/sailfish-default/silica/icons-monochrome/
 
 INSTALLS += dbus_service oneshot images

@@ -20,7 +20,7 @@ Page {
         PullDownMenu {
             visible: (!savedWeathersModel.currentWeather
                       || savedWeathersModel.currentWeather.status !== Weather.Unauthorized)
-                     && WeatherProvider.isApiKeyProvided()
+                     && WeatherProvider.isApiKeyProvided
             MenuItem {
                 //% "New location"
                 text: qsTrId("weather-me-new_location")
@@ -48,8 +48,11 @@ Page {
                 opacity: currentWeatherAvailable ? 1.0 : 0.0
                 weather: savedWeathersModel.currentWeather
                 onClicked: {
-                    pageStack.animatorPush("WeatherPage.qml",
-                                           {"weather": weather, "weatherModel": currentWeatherModel, "current": true })
+                    pageStack.animatorPush("WeatherPage.qml", {
+                        "weather": weather,
+                        "weatherModel": currentWeatherModel,
+                        "current": true
+                    })
                 }
             }
 
@@ -57,7 +60,7 @@ Page {
                 visible: !placeholder.enabled
                          && currentWeatherAvailable
                          && currentWeatherModel.status === Weather.Unauthorized
-                         && WeatherProvider.isApiKeyProvided()
+                         && WeatherProvider.isApiKeyProvided
                 x: Theme.horizontalPageMargin
                 width: parent.width - 2*x
                 horizontalAlignment: Text.AlignHCenter
@@ -78,7 +81,7 @@ Page {
                 visible: !placeholder.enabled
                          && !noProviderSelected
                          && currentWeatherAvailable
-                         && !WeatherProvider.isApiKeyProvided()
+                         && !WeatherProvider.isApiKeyProvided
                 x: Theme.horizontalPageMargin
                 width: parent.width - 2*x
                 horizontalAlignment: Text.AlignHCenter
@@ -160,8 +163,9 @@ Page {
         model: savedWeathersModel
         delegate: ListItem {
             id: savedWeatherItem
+
             readonly property bool compatible: WeatherProvider.isLocationCompatible(model)
-            visible: WeatherProvider.isApiKeyProvided() && compatible
+            visible: WeatherProvider.isApiKeyProvided && compatible
 
             function remove() {
                 savedWeathersModel.remove(locationId, model.provider)
@@ -171,8 +175,10 @@ Page {
             menu: contextMenuComponent
             contentHeight: visible ? Math.max(Theme.itemSizeMedium, labelColumn.implicitHeight + 2 * Theme.paddingMedium) : 0
             onClicked: {
-                pageStack.animatorPush("WeatherPage.qml", {"weather": savedWeathersModel.get(model.locationId, model.provider),
-                                           "weatherModel": weatherModels[weatherApplication.weatherModelKey(model.provider, model.locationId)] })
+                pageStack.animatorPush("WeatherPage.qml", {
+                    "weather": savedWeathersModel.get(model.locationId, model.provider),
+                    "weatherModel": weatherModels[weatherApplication.weatherModelKey(model.provider, model.locationId)]
+                })
             }
 
             Image {

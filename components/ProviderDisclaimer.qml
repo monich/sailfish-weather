@@ -46,9 +46,9 @@ BackgroundItem {
             anchors.horizontalCenter: parent.horizontalCenter
             font.pixelSize: Theme.fontSizeTiny
             color: highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
-            text: "<style>a:link { color: " + (highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor) + " }</style>"
-                    + WeatherProvider.attributionText()
-            textFormat: Text.RichText
+            text: WeatherProvider.attributionText()
+            textFormat: Text.StyledText
+            linkColor: highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
             wrapMode: Text.Wrap
             horizontalAlignment: Text.AlignHCenter
 

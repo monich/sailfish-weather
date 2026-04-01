@@ -42,8 +42,7 @@ static QString locationKey(int locationId, const QString &provider)
 }
 
 SavedWeathersModel::SavedWeathersModel(QObject *parent)
-    : QAbstractListModel(parent), m_currentWeather(0), m_autoRefresh(false), m_provider(QString()),
-      m_fileWatcher(0)
+    : QAbstractListModel(parent), m_currentWeather(0), m_autoRefresh(false), m_fileWatcher(0)
 {
     load();
 }
@@ -78,13 +77,11 @@ void SavedWeathersModel::load()
     }
 
     QFile file(filePath);
-    if (!file.exists()) {
-        clearLoadedState();
-        return;
-    }
-
-    if (!file.open(QIODevice::ReadOnly)) {
+    if (!file.exists() || !file.open(QIODevice::ReadOnly)) {
         qmlInfo(this) << "Could not open weather data file!";
+        if (!file.exists()) {
+            clearLoadedState();
+        }
         return;
     }
 
@@ -101,17 +98,16 @@ void SavedWeathersModel::load()
     foreach (const QJsonValue &value, savedLocations) {
         QJsonObject location = value.toObject();
         int locationId = location["locationId"].toInt();
-        QString provider = m_provider;
 
-        locationKeys.insert(locationKey(locationId, provider));
+        locationKeys.insert(locationKey(locationId, m_provider));
         // add new weather locations
-        if (getWeatherIndex(locationId, provider) < 0) {
+        if (getWeatherIndex(locationId, m_provider) < 0) {
             QVariantMap locationMap = location.toVariantMap();
-            locationMap.insert(QStringLiteral("provider"), provider);
+            locationMap.insert(QStringLiteral("provider"), m_provider);
             addLocation(locationMap);
         }
         QVariantMap weatherMap = location.value("weather").toObject().toVariantMap();
-        weatherMap.insert(QStringLiteral("provider"), provider);
+        weatherMap.insert(QStringLiteral("provider"), m_provider);
         // update existing weather locations
         if (weatherMap.value("populated").toBool()) {
             update(locationId, weatherMap, Weather::Status(weatherMap["status"].toInt()),

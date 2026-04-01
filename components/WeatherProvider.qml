@@ -28,6 +28,11 @@ QtObject {
         key: root.apiKeyConfigurationKey(root.currentProvider())
         defaultValue: ""
     }
+    readonly property bool isApiKeyProvided: {
+        var providerId = currentProvider()
+        return providerId.length > 0
+                && (!requiresApiKey(providerId) || providerAppKey.value.length > 0)
+    }
 
     function loadBackends() {
         var loadedBackends = []
@@ -42,6 +47,8 @@ QtObject {
             loadedBackends[loadedBackends.length] = backend
         }
 
+        // TODO: Use locale-aware sorting if provider titles become translated
+        // differently enough that simple string ordering becomes problematic.
         loadedBackends.sort(function(a, b) {
             var aTitle = a.providerTitle()
             var bTitle = b.providerTitle()
@@ -58,24 +65,19 @@ QtObject {
     }
 
     function createBackend(backendFile) {
-        try {
-            var component = Qt.createComponent(backendFile)
-            if (component.status !== Component.Ready) {
-                console.warn("Failed to load weather backend", backendFile, component.errorString())
-                return null
-            }
-
-            var backend = component.createObject(root)
-            if (!backend) {
-                console.warn("Failed to instantiate weather backend", backendFile, component.errorString())
-                return null
-            }
-
-            return backend
-        } catch (error) {
-            console.warn("Failed to load weather backend", backendFile, error)
+        var component = Qt.createComponent(backendFile)
+        if (component.status !== Component.Ready) {
+            console.warn("Failed to load weather backend", backendFile, component.errorString())
             return null
         }
+
+        var backend = component.createObject(root)
+        if (!backend) {
+            console.warn("Failed to instantiate weather backend", backendFile, component.errorString())
+            return null
+        }
+
+        return backend
     }
 
     function providerMetadata(backends) {
@@ -112,7 +114,7 @@ QtObject {
     }
 
     function effectiveProviderId(providerId) {
-        if (providerId && providerId.length > 0) {
+        if (typeof providerId === "string" && providerId.length > 0) {
             return providerId
         }
 
@@ -120,7 +122,7 @@ QtObject {
     }
 
     function backendForId(providerId) {
-        if (backends.length === 0 || !providerId || providerId.length === 0) {
+        if (backends.length === 0 || typeof providerId !== "string" || providerId.length === 0) {
             return null
         }
         for (var i = 0; i < backends.length; i++) {
@@ -134,7 +136,7 @@ QtObject {
 
     function providerInfo(providerId) {
         providerId = effectiveProviderId(providerId)
-        if (!providerId || providerId.length === 0) {
+        if (typeof providerId !== "string" || providerId.length === 0) {
             return null
         }
 
@@ -149,6 +151,9 @@ QtObject {
 
     function indexOfProvider(providerId) {
         providerId = effectiveProviderId(providerId)
+        if (typeof providerId !== "string" || providerId.length === 0) {
+            return -1
+        }
         for (var i = 0; i < providers.length; i++) {
             if (providers[i].id === providerId) {
                 return i
@@ -174,12 +179,6 @@ QtObject {
     function requiresApiKey(providerId) {
         var selectedBackend = backendForId(providerId)
         return selectedBackend ? selectedBackend.requiresApiKey() : false
-    }
-
-    function isApiKeyProvided() {
-        var providerId = currentProvider()
-        return providerId.length > 0
-                && (!requiresApiKey(providerId) || providerAppKey.value.length > 0)
     }
 
     function fetchToken(weatherRequest) {

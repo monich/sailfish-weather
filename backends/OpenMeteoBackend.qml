@@ -120,7 +120,10 @@ QtObject {
                 continue
             }
 
-            var weather = getWeatherData(hourly.weather_code[i], hourly.cloud_cover ? hourly.cloud_cover[i] : undefined, hourly.is_day ? hourly.is_day[i] : undefined)
+            var weather = getWeatherData(
+                        hourly.weather_code[i],
+                        hourly.cloud_cover ? hourly.cloud_cover[i] : undefined,
+                        hourly.is_day ? hourly.is_day[i] : undefined)
             weather.timestamp = new Date(hourly.time[i] * 1000)
             weather.temperature = hourly.temperature_2m[i]
             weatherData[weatherData.length] = weather

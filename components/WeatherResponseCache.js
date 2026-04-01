@@ -117,7 +117,9 @@ function store(url, data, headers) {
         "expiresAt": expiresAt,
         "lastModified": headers["last-modified"] || ""
     }
-    console.log(debugPrefix(url), "stored response (expires:", describeExpiry(expiresAt) + ", last-modified:", (headers["last-modified"] || "none") + ")")
+    console.log(debugPrefix(url), "stored response (expires:",
+                describeExpiry(expiresAt) + ", last-modified:",
+                (headers["last-modified"] || "none") + ")")
 }
 
 function updateMetadata(url, headers) {
@@ -134,7 +136,9 @@ function updateMetadata(url, headers) {
     if (headers["last-modified"] !== undefined) {
         entry.lastModified = headers["last-modified"]
     }
-    console.log(debugPrefix(url), "updated cache metadata (expires:", describeExpiry(entry.expiresAt) + ", last-modified:", (entry.lastModified || "none") + ")")
+    console.log(debugPrefix(url), "updated cache metadata (expires:",
+                describeExpiry(entry.expiresAt) + ", last-modified:",
+                (entry.lastModified || "none") + ")")
 }
 
 function responseHeaders(request) {

@@ -10,4 +10,6 @@ settings.subdir = application/settings
 SUBDIRS = components application settings
 
 OTHER_FILES = \
+    BACKEND.md \
+    README.md \
     rpm/sailfish-weather.spec \

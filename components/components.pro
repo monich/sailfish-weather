@@ -12,7 +12,6 @@ TARGETPATH = $$[QT_INSTALL_QML]/$$MODULENAME
 
 QT += qml
 CONFIG += plugin link_pkgconfig
-PKGCONFIG += contentaction5
 
 # C++ sources
 SOURCES += plugin.cpp \

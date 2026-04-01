@@ -104,8 +104,8 @@ ApplicationSettings {
 
         menu: ContextMenu {
             MenuItem {
-                //% "Choose"
-                text: qsTrId("weather-me-choose")
+                //% "None"
+                text: qsTrId("weather-me-none")
                 visible: WeatherProvider.allowUnsetProvider
                 onClicked: weatherDataProvider.value = ""
             }
@@ -147,14 +147,14 @@ ApplicationSettings {
                  && root.selectedProvider.requiresApiKey
                  && root.selectedProvider.apiKeyInstructions.length > 0
 
-        text: "<style>a:link { color: " + Theme.primaryColor + " }</style>"
-                + root.selectedProvider.apiKeyInstructions
+        text: root.selectedProvider
+                ? "<style>a:link {color: " + Theme.primaryColor + ";}</style>"
+                  + root.selectedProvider.apiKeyInstructions
+                : ""
         wrapMode: Text.Wrap
         color: Theme.highlightColor
         textFormat: Text.RichText
-        leftPadding: Theme.paddingLarge
-        rightPadding: Theme.paddingLarge
-        x: Theme.horizontalPageMargin
+        x: Theme.horizontalPageMargin + Theme.paddingLarge
         width: parent.width - 2 * x
 
         onLinkActivated: Qt.openUrlExternally(link)
@@ -164,14 +164,12 @@ ApplicationSettings {
         visible: !!root.selectedProvider
                  && root.selectedProvider.attributionText.length > 0
 
-        text: "<style>a:link { color: " + Theme.primaryColor + " }</style>"
-                + root.selectedProvider.attributionText
+        text: root.selectedProvider ? root.selectedProvider.attributionText : ""
         wrapMode: Text.Wrap
         color: Theme.secondaryHighlightColor
-        textFormat: Text.RichText
-        leftPadding: Theme.paddingLarge
-        rightPadding: Theme.paddingLarge
-        x: Theme.horizontalPageMargin
+        textFormat: Text.StyledText
+        linkColor: Theme.primaryColor
+        x: Theme.horizontalPageMargin + Theme.paddingLarge
         width: parent.width - 2 * x
 
         onLinkActivated: Qt.openUrlExternally(link)
