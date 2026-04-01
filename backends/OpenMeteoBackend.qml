@@ -47,7 +47,7 @@ QtObject {
         }
     }
 
-    function currentWeatherUrl(weather) {
+    function forecastBaseUrl(weather) {
         return openMeteoForecastApi
                 + "?latitude=" + weather.latitude
                 + "&longitude=" + weather.longitude
@@ -56,6 +56,10 @@ QtObject {
                 + "&temperature_unit=celsius"
                 + "&wind_speed_unit=ms"
                 + "&precipitation_unit=mm"
+    }
+
+    function currentWeatherUrl(weather) {
+        return forecastBaseUrl(weather)
                 + "&current=temperature_2m,apparent_temperature,weather_code,cloud_cover,is_day"
     }
 
@@ -68,14 +72,7 @@ QtObject {
                 ? "temperature_2m,weather_code,cloud_cover,is_day"
                 : "weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,wind_direction_10m_dominant"
 
-        return openMeteoForecastApi
-                + "?latitude=" + weather.latitude
-                + "&longitude=" + weather.longitude
-                + "&timezone=auto"
-                + "&timeformat=unixtime"
-                + "&temperature_unit=celsius"
-                + "&wind_speed_unit=ms"
-                + "&precipitation_unit=mm"
+        return forecastBaseUrl(weather)
                 + (isHourly ? "&forecast_hours=7" : "&forecast_days=7")
                 + (isHourly ? "&hourly=" : "&daily=") + variables
     }

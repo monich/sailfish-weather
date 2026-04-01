@@ -110,8 +110,9 @@ void SavedWeathersModel::load()
         weatherMap.insert(QStringLiteral("provider"), m_provider);
         // update existing weather locations
         if (weatherMap.value("populated").toBool()) {
-            update(locationId, weatherMap, Weather::Status(weatherMap["status"].toInt()),
-                    true /* internal */);
+            update(locationId, weatherMap,
+                   Weather::Status(weatherMap["status"].toInt()),
+                   true /* internal */);
         }
     }
 
@@ -257,6 +258,11 @@ void SavedWeathersModel::addLocation(Weather *weather)
     emit countChanged();
 }
 
+void SavedWeathersModel::setCurrentWeather(const QVariantMap &map)
+{
+    setCurrentWeather(map, false /* internal */);
+}
+
 void SavedWeathersModel::setCurrentWeather(const QVariantMap &map, bool internal)
 {
     int locationId = map["locationId"].toInt();
@@ -310,7 +316,14 @@ void SavedWeathersModel::setErrorStatus(int locationId, int status, const QStrin
     }
 }
 
-void SavedWeathersModel::update(int locationId, const QVariantMap &weatherMap, Weather::Status status, bool internal)
+void SavedWeathersModel::update(int locationId, const QVariantMap &weatherMap,
+                                Weather::Status status)
+{
+    update(locationId, weatherMap, status, false /* internal */);
+}
+
+void SavedWeathersModel::update(int locationId, const QVariantMap &weatherMap,
+                                Weather::Status status, bool internal)
 {
     QString provider = locationProvider(weatherMap);
     bool updatedCurrent = false;

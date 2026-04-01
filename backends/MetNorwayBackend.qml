@@ -27,8 +27,15 @@ QtObject {
     }
 
     function attributionText() {
-        //% "Weather data from <a href='https://www.yr.no/'>MET Norway / Yr</a>, licensed under <a href='https://creativecommons.org/licenses/by/4.0/'>CC BY 4.0</a>. Forecast data is reformatted for presentation in Sailfish Weather."
+        //: Content between %1 and %2 is a link to the MET Norway / Yr web site.
+        //: Content between %3 and %4 is a link to the CC BY 4.0 license page.
+        //% "Weather data from %1MET Norway / Yr%2, licensed under %3CC BY 4.0%4. "
+        //% "Forecast data is formatted for presentation in Sailfish Weather."
         return qsTrId("weather_settings-met-norway-attribution")
+                .arg("<a href='https://www.yr.no/'>")
+                .arg("</a>")
+                .arg("<a href='https://creativecommons.org/licenses/by/4.0/'>")
+                .arg("</a>")
     }
 
     function shortAttributionText() {

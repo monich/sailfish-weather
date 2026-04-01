@@ -50,18 +50,19 @@ public:
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
     virtual QVariant data(const QModelIndex &index, int role) const;
 
-    Q_INVOKABLE void setErrorStatus(int locationId, int status, const QString &provider = QString());
     Q_INVOKABLE void addLocation(const QVariantMap &locationMap);
-    Q_INVOKABLE void update(int locationId, const QVariantMap &weatherMap, Weather::Status status = Weather::Ready, bool internal = false);
-    Q_INVOKABLE void remove(int locationId, const QString &provider = QString());
-    Q_INVOKABLE Weather *get(int locationId, const QString &provider = QString());
     Q_INVOKABLE void moveToTop(int index);
     Q_INVOKABLE void save();
+    Q_INVOKABLE void setCurrentWeather(const QVariantMap &locationMap);
+    Q_INVOKABLE void setErrorStatus(int locationId, int status, const QString &provider = QString());
+    Q_INVOKABLE void update(int locationId, const QVariantMap &weatherMap,
+                            Weather::Status status = Weather::Ready);
+    Q_INVOKABLE void remove(int locationId, const QString &provider = QString());
+    Q_INVOKABLE Weather *get(int locationId, const QString &provider = QString());
 
     int count() const;
 
     Weather *currentWeather() const;
-    Q_INVOKABLE void setCurrentWeather(const QVariantMap &locationMap, bool internal = false);
 
     // Automatically reload cached data when it is changed by another model
     // Default false
@@ -91,6 +92,8 @@ private:
 
     int getWeatherIndex(int locationId, const QString &provider = QString()) const;
     void clearLoadedState();
+    void setCurrentWeather(const QVariantMap &locationMap, bool internal);
+    void update(int locationId, const QVariantMap &weatherMap, Weather::Status status, bool internal);
 };
 
 QML_DECLARE_TYPE(SavedWeathersModel)
