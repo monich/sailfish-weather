@@ -4,8 +4,15 @@
 
 .pragma library
 
+var enableDebugLogging = false
 var entries = {}
 var inflightRequests = {}
+
+function debugLog() {
+    if (enableDebugLogging) {
+        console.log.apply(console, arguments)
+    }
+}
 
 function debugPrefix(url) {
     return "WeatherResponseCache: " + url
@@ -23,40 +30,55 @@ function describeExpiry(expiresAt) {
     return new Date(expiresAt).toUTCString()
 }
 
-function freshResponse(url) {
+function cacheEntry(url) {
     var entry = entries[url]
+    if (!entry) {
+        return undefined
+    }
+
+    if (entry.createdAt !== undefined && Date.now() < entry.createdAt) {
+        debugLog(debugPrefix(url), "invalidating cache entry (created in the future)")
+        delete entries[url]
+        return undefined
+    }
+
+    return entry
+}
+
+function freshResponse(url) {
+    var entry = cacheEntry(url)
     if (!entry || entry.expiresAt === undefined || entry.expiresAt === null) {
-        console.log(debugPrefix(url), "cache miss (no fresh entry)")
+        debugLog(debugPrefix(url), "cache miss (no fresh entry)")
         return undefined
     }
 
     if (Date.now() < entry.expiresAt) {
-        console.log(debugPrefix(url), "cache hit (fresh until", describeExpiry(entry.expiresAt) + ")")
+        debugLog(debugPrefix(url), "cache hit (fresh until", describeExpiry(entry.expiresAt) + ")")
         return entry.data
     }
 
-    console.log(debugPrefix(url), "cache stale (expired at", describeExpiry(entry.expiresAt) + ")")
+    debugLog(debugPrefix(url), "cache stale (expired at", describeExpiry(entry.expiresAt) + ")")
     return undefined
 }
 
 function cachedResponse(url) {
-    var entry = entries[url]
+    var entry = cacheEntry(url)
     if (entry) {
-        console.log(debugPrefix(url), "using cached response body")
+        debugLog(debugPrefix(url), "using cached response body")
     } else {
-        console.log(debugPrefix(url), "no cached response body available")
+        debugLog(debugPrefix(url), "no cached response body available")
     }
     return entry ? entry.data : undefined
 }
 
 function conditionalHeaders(url) {
-    var entry = entries[url]
+    var entry = cacheEntry(url)
     if (!entry || !entry.lastModified || entry.lastModified.length === 0) {
-        console.log(debugPrefix(url), "no conditional cache headers")
+        debugLog(debugPrefix(url), "no conditional cache headers")
         return {}
     }
 
-    console.log(debugPrefix(url), "sending If-Modified-Since", entry.lastModified)
+    debugLog(debugPrefix(url), "sending If-Modified-Since", entry.lastModified)
     return {
         "If-Modified-Since": entry.lastModified
     }
@@ -66,12 +88,12 @@ function beginInflight(url, requester) {
     var waiters = inflightRequests[url]
     if (waiters) {
         waiters.push(requester)
-        console.log(inflightPrefix(url), "joined existing request, waiters:", waiters.length)
+        debugLog(inflightPrefix(url), "joined existing request, waiters:", waiters.length)
         return false
     }
 
     inflightRequests[url] = [requester]
-    console.log(inflightPrefix(url), "started new request")
+    debugLog(inflightPrefix(url), "started new request")
     return true
 }
 
@@ -89,14 +111,14 @@ function releaseInflight(url, requester) {
 
     if (waiters.length === 0) {
         delete inflightRequests[url]
-        console.log(inflightPrefix(url), "released final waiter")
+        debugLog(inflightPrefix(url), "released final waiter")
     }
 }
 
 function takeInflight(url) {
     var waiters = inflightRequests[url] || []
     delete inflightRequests[url]
-    console.log(inflightPrefix(url), "completing request for waiters:", waiters.length)
+    debugLog(inflightPrefix(url), "completing request for waiters:", waiters.length)
     return waiters
 }
 
@@ -108,24 +130,25 @@ function hasValidator(headers) {
 function store(url, data, headers) {
     var expiresAt = parseExpires(headers)
     if (expiresAt === undefined && !hasValidator(headers)) {
-        console.log(debugPrefix(url), "not caching response (no expiry or validator)")
+        debugLog(debugPrefix(url), "not caching response (no expiry or validator)")
         return
     }
 
     entries[url] = {
         "data": data,
+        "createdAt": Date.now(),
         "expiresAt": expiresAt,
         "lastModified": headers["last-modified"] || ""
     }
-    console.log(debugPrefix(url), "stored response (expires:",
-                describeExpiry(expiresAt) + ", last-modified:",
-                (headers["last-modified"] || "none") + ")")
+    debugLog(debugPrefix(url), "stored response (expires:",
+             describeExpiry(expiresAt) + ", last-modified:",
+             (headers["last-modified"] || "none") + ")")
 }
 
 function updateMetadata(url, headers) {
     var entry = entries[url]
     if (!entry) {
-        console.log(debugPrefix(url), "cannot update metadata for missing cache entry")
+        debugLog(debugPrefix(url), "cannot update metadata for missing cache entry")
         return
     }
 
@@ -136,9 +159,9 @@ function updateMetadata(url, headers) {
     if (headers["last-modified"] !== undefined) {
         entry.lastModified = headers["last-modified"]
     }
-    console.log(debugPrefix(url), "updated cache metadata (expires:",
-                describeExpiry(entry.expiresAt) + ", last-modified:",
-                (entry.lastModified || "none") + ")")
+    debugLog(debugPrefix(url), "updated cache metadata (expires:",
+             describeExpiry(entry.expiresAt) + ", last-modified:",
+             (entry.lastModified || "none") + ")")
 }
 
 function responseHeaders(request) {
