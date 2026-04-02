@@ -20,11 +20,13 @@ ConfigurationValue {
         }
     }
     function formatWithoutUnit(temperature) {
-        return celsius ? temperature : Math.round(9/5*parseInt(temperature)+32).toString()
+        return celsius ? temperature
+                       : Math.round(9 / 5 * parseInt(temperature) + 32).toString()
     }
     function format(temperature) {
         return formatWithoutUnit(temperature) + "\u00B0"
     }
+
     key: "/sailfish/weather/temperature_unit"
     defaultValue: "celsius"
 }

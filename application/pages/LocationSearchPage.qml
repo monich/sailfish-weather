@@ -71,7 +71,7 @@ Page {
         BusyIndicator {
             running: !error && loading && locationsModel.filter.length > 0 && locationsModel.count === 0
             anchors.horizontalCenter: parent.horizontalCenter
-            y: placeHolder.y + Math.round(height/2)
+            y: placeHolder.y + Math.round(height / 2)
             parent: placeHolder.parent
             size: BusyIndicatorSize.Large
         }

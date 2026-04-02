@@ -65,5 +65,4 @@ Item {
                 ? _providerImage + (highlighted ? Theme.highlightColor : Theme.primaryColor)
                 : ""
     }
-
 }

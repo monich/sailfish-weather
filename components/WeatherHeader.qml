@@ -40,7 +40,8 @@ MouseArea {
             right: parent.right
         }
         title: weather ? (weather.city + ", " + weather.country
-                          + (weather.adminArea ? (", " + weather.adminArea) : "")) : ""
+                          + (weather.adminArea ? (", " + weather.adminArea) : ""))
+                       : ""
     }
     Column {
         id: column
@@ -52,8 +53,8 @@ MouseArea {
             right: parent.right
             rightMargin: Theme.horizontalPageMargin
         }
-
         spacing: -Theme.paddingMedium
+
         Item {
             width: parent.width
             height: secondaryLabel.height + timestampLabel.height

@@ -11,6 +11,7 @@ X-MeeGo-Translation-Catalog=weather
 Icon=icon-launcher-weather
 Exec=/usr/bin/sailjail -p  sailfish-weather.desktop /usr/bin/sailfish-weather
 Comment=Sailfish Weather
+
 [X-Sailjail]
 Permissions=Internet;Location;Accounts;Privileged
 OrganizationName=org.sailfishos

@@ -12,7 +12,8 @@ WeatherRequest {
     property var savedWeathers
     property date timestamp: new Date()
     readonly property int locationId: !!weather ? weather.locationId : -1
-    readonly property string provider: weather ? WeatherProvider.locationProvider(weather) : WeatherProvider.defaultProviderId
+    readonly property string provider: weather ? WeatherProvider.locationProvider(weather)
+                                               : WeatherProvider.defaultProviderId
 
     onWeatherChanged: {
         status = Weather.Null
