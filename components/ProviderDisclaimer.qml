@@ -13,12 +13,16 @@ BackgroundItem {
     property var weather
     property int topMargin: Theme.paddingLarge
     property int bottomMargin: 2*Theme.paddingLarge
+    readonly property bool hasProvider: WeatherProvider.currentProvider().length > 0
+    readonly property string providerImage: WeatherProvider.providerImage()
+
+    visible: hasProvider
+    height: hasProvider ? column.height + topMargin + bottomMargin : 0
 
     onClicked: {
         if (WeatherProvider.externalUrl(weather).trim().length > 0)
             Qt.openUrlExternally(WeatherProvider.externalUrl(weather))
     }
-    height: column.height + topMargin + bottomMargin
 
     Column {
         id: column
@@ -35,7 +39,23 @@ BackgroundItem {
         }
         Image {
             anchors.horizontalCenter: parent.horizontalCenter
-            source: WeatherProvider.providerImage() + (highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor)
+            source: providerImage.length > 0
+                    ? providerImage + (highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor)
+                    : ""
+        }
+        Label {
+            visible: text.length > 0
+            width: parent.width - 2 * Theme.horizontalPageMargin
+            anchors.horizontalCenter: parent.horizontalCenter
+            font.pixelSize: Theme.fontSizeTiny
+            color: highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
+            text: WeatherProvider.attributionText()
+            textFormat: Text.StyledText
+            linkColor: highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
+            wrapMode: Text.Wrap
+            horizontalAlignment: Text.AlignHCenter
+
+            onLinkActivated: Qt.openUrlExternally(link)
         }
         anchors {
             bottom: parent.bottom

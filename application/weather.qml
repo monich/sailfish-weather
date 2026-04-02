@@ -16,6 +16,11 @@ ApplicationWindow {
     property var weatherModels
     property bool currentWeatherAvailable: savedWeathersModel.currentWeather
                                         && savedWeathersModel.currentWeather.populated
+                                        && WeatherProvider.isLocationCompatible(savedWeathersModel.currentWeather)
+
+    function weatherModelKey(provider, locationId) {
+        return provider + ":" + locationId
+    }
 
     initialPage: Component { MainPage {} }
     cover: Component { WeatherCover {} }
@@ -46,11 +51,23 @@ ApplicationWindow {
         asynchronous: true
         onObjectAdded: {
             var models = weatherModels ? weatherModels : {}
-            models[object.locationId] = object
+            models[weatherModelKey(object.provider, object.locationId)] = object
+            weatherModels = models
+        }
+        onObjectRemoved: {
+            if (!weatherModels) {
+                return
+            }
+
+            var models = weatherModels
+            delete models[weatherModelKey(object.provider, object.locationId)]
             weatherModels = models
         }
 
-        model: SavedWeathersModel { id: savedWeathersModel }
+        model: SavedWeathersModel {
+            id: savedWeathersModel
+            provider: WeatherProvider.currentProvider()
+        }
         ApplicationWeatherModel {
             savedWeathers: savedWeathersModel
             weather: model

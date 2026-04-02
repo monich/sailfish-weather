@@ -19,7 +19,7 @@ Item {
         //% "By default the temperature is shown in Celsius. If you prefer Fahrenheit go to "
         //% "Settings -> App -> Weather to change the used temperature unit.\n"
         //% "\n"
-        //% "Weather is powered by Foreca weather service."
+        //% "Weather is powered by selectable weather services."
         QT_TRID_NOOP("weather-la-store_app_description")
     }
 }

@@ -8,12 +8,26 @@ import Sailfish.Silica 1.0
 import Sailfish.Weather 1.0
 
 Item {
+    readonly property string _providerImage: WeatherProvider.smallProviderImage()
+
     WeatherCoverItem {
         x: Theme.paddingLarge
         width: parent.width - 2*x
         topPadding: Theme.paddingLarge
-        text: (weather.status === Weather.Error || weather.status === Weather.Unauthorized) ? weather.city : TemperatureConverter.format(weather.temperature) + " " + weather.city
+        text: {
+            if (!weather) {
+                return ""
+            }
+
+            return (weather.status === Weather.Error || weather.status === Weather.Unauthorized)
+                    ? weather.city
+                    : TemperatureConverter.format(weather.temperature) + " " + weather.city
+        }
         description: {
+            if (!weather) {
+                return ""
+            }
+
             if (weather.status === Weather.Error) {
                 //% "Loading failed"
                 return qsTrId("weather-la-loading_failed")
@@ -43,10 +57,13 @@ Item {
         opacity: 0.5
         anchors {
             bottom: parent.bottom
-            bottomMargin: Math.round(Theme.paddingSmall/2)
+            // Keep clear of the bottom action icon without floating the provider badge too high.
+            bottomMargin: Math.round(Theme.itemSizeSmall / 2)
             horizontalCenter: parent.horizontalCenter
         }
-        source: WeatherProvider.smallProviderImage() + (highlighted ? Theme.highlightColor : Theme.primaryColor)
+        source: _providerImage.length > 0
+                ? _providerImage + (highlighted ? Theme.highlightColor : Theme.primaryColor)
+                : ""
     }
 
 }

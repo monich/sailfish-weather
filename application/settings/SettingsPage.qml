@@ -1,5 +1,5 @@
 // SPDX-FileCopyrightText: 2014 - 2023 Jolla Ltd.
-// SPDX-FileCopyrightText: 2024 - 2025 Jolla Mobile Ltd
+// SPDX-FileCopyrightText: 2024 - 2026 Jolla Mobile Ltd
 //
 // SPDX-License-Identifier: BSD-3-Clause
 
@@ -13,40 +13,76 @@ import Sailfish.Weather 1.0
 ApplicationSettings {
     id: root
 
+    property int selectedProviderIndex: WeatherProvider.indexOfProvider(weatherDataProvider.value)
+    property var selectedProvider: WeatherProvider.providerInfo(weatherDataProvider.value)
+
+    function temperatureUnitIndex() {
+        return temperatureUnitValue.value === "fahrenheit" ? 1 : 0
+    }
+
+    function weatherProviderMenuIndex() {
+        var hasPlaceholderItem = WeatherProvider.providers.length === 0 || WeatherProvider.allowUnsetProvider
+        var menuPrefixCount = hasPlaceholderItem ? 1 : 0
+
+        return selectedProviderIndex >= 0
+                ? selectedProviderIndex + menuPrefixCount
+                : 0
+    }
+
+    function syncTemperatureUnitIndex() {
+        var index = temperatureUnitIndex()
+        if (temperatureUnitComboBox.currentIndex !== index) {
+            temperatureUnitComboBox.currentIndex = index
+        }
+    }
+
+    function syncWeatherProviderIndex() {
+        var index = weatherProviderMenuIndex()
+        if (weatherProviderComboBox.currentIndex !== index) {
+            weatherProviderComboBox.currentIndex = index
+        }
+    }
+
+    function syncProviderApiKeyText() {
+        if (!providerAppIdTextField.activeFocus && providerAppIdTextField.text !== providerApiKey.value) {
+            providerAppIdTextField.text = providerApiKey.value
+        }
+    }
+
     ConfigurationValue {
         id: temperatureUnitValue
 
         key: "/sailfish/weather/temperature_unit"
         defaultValue: "celsius"
+
+        onValueChanged: root.syncTemperatureUnitIndex()
     }
+
     ConfigurationValue {
         id: weatherDataProvider
 
         key: "/sailfish/weather/data_provider"
-        defaultValue: WeatherProvider.name.FORECA
-    }
-    ConfigurationValue {
-        id: openWeatherAppId
+        defaultValue: WeatherProvider.defaultProviderId
 
-        key: "/sailfish/weather/open_weather_app_id"
+        onValueChanged: root.syncWeatherProviderIndex()
+    }
+
+    ConfigurationValue {
+        id: providerApiKey
+
+        key: WeatherProvider.apiKeyConfigurationKey(weatherDataProvider.value)
+        defaultValue: ""
+
+        onValueChanged: root.syncProviderApiKeyText()
+        onKeyChanged: root.syncProviderApiKeyText()
     }
 
     ComboBox {
+        id: temperatureUnitComboBox
+
         //% "Temperature units"
         label: qsTrId("weather_settings-la-temperature_units")
-        Component.onCompleted: {
-            switch (temperatureUnitValue.value) {
-            case "celsius":
-                currentIndex = 0
-                break
-            case "fahrenheit":
-                currentIndex = 1
-                break
-            default:
-                console.log("WeatherSettings: Invalid temperature unit value", temperatureUnitValue.value)
-                break
-            }
-        }
+        Component.onCompleted: root.syncTemperatureUnitIndex()
 
         menu: ContextMenu {
             MenuItem {
@@ -63,72 +99,87 @@ ApplicationSettings {
     }
 
     ComboBox {
+        id: weatherProviderComboBox
+
         //% "Weather Provider"
         label: qsTrId("weather_settings-la-weather-provider")
-        Component.onCompleted: {
-            switch (weatherDataProvider.value) {
-            case WeatherProvider.name.FORECA:
-                currentIndex = 0
-                break
-            case WeatherProvider.name.OPEN_WEATHER:
-                currentIndex = 1
-                break
-            default:
-                console.log("WeatherSettings: Invalid weather provider value", weatherDataProvider.value)
-                break
-            }
-        }
+        Component.onCompleted: root.syncWeatherProviderIndex()
 
         menu: ContextMenu {
             MenuItem {
-                //% "Foreca"
-                text: qsTrId("weather_settings-me-foreca")
-                onClicked: weatherDataProvider.value = WeatherProvider.name.FORECA
+                text: WeatherProvider.providers.length === 0
+                        ? //% "None available"
+                        qsTrId("weather-me-none_available")
+                        : //% "None"
+                        qsTrId("weather-me-none")
+                visible: WeatherProvider.providers.length === 0 || WeatherProvider.allowUnsetProvider
+                onClicked: {
+                    if (WeatherProvider.providers.length > 0) {
+                        weatherDataProvider.value = ""
+                    }
+                }
             }
-            MenuItem {
-                //% "Open Weather"
-                text: qsTrId("weather_settings-me-open-weather")
-                onClicked: weatherDataProvider.value = WeatherProvider.name.OPEN_WEATHER
+
+            Repeater {
+                model: WeatherProvider.providers
+
+                delegate: MenuItem {
+                    property var provider: modelData
+
+                    text: provider.title
+                    onClicked: weatherDataProvider.value = provider.id
+                }
             }
         }
     }
 
+    onSelectedProviderIndexChanged: root.syncWeatherProviderIndex()
+
     TextField {
         id: providerAppIdTextField
 
-        visible: weatherDataProvider.value === WeatherProvider.name.OPEN_WEATHER
-        text: openWeatherAppId.value
+        visible: !!root.selectedProvider && root.selectedProvider.requiresApiKey
+        text: providerApiKey.value
         //% "API Key"
         label: qsTrId("weather_settings-api-key")
         onFocusChanged: {
             if (!focus) {
-                openWeatherAppId.value = text.trim()
+                providerApiKey.value = text.trim()
             }
         }
+        onVisibleChanged: if (visible) root.syncProviderApiKeyText()
         EnterKey.iconSource: "image://theme/icon-m-enter-close"
         EnterKey.onClicked: parent.focus = true
     }
 
     Label {
-        visible: weatherDataProvider.value === WeatherProvider.name.OPEN_WEATHER
+        visible: !!root.selectedProvider
+                 && root.selectedProvider.requiresApiKey
+                 && root.selectedProvider.apiKeyInstructions.length > 0
 
-        //: Step by step instruction how to obtain api key for OpenWeather provider.
-        //: Where %1 gets replaced by sign up url and %2 by api key page
-        //% "To obtain your API key:"
-        //% "<ol><li>Register an account."
-        //% "<p>Go to <b><a href='%1'>OpenWeatherMap</a></b> and create an account.</p></li>"
-        //% "<li>Generate your API key"
-        //% "<p>After logging in, navigate to the <b><a href='%2'>API keys</a></b> section and generate a new API key.</p></li>"
-        //% "<li>Enter the API key<p>Copy and paste the API key in the <b>API Key</b> field above.</p></li></ol>"
-        text: "<style>a:link { color: " + Theme.primaryColor + " }</style>" +
-            qsTrId("weather_settings-open-weather-instruction").arg('https://home.openweathermap.org/users/sign_up')
-                .arg('https://home.openweathermap.org/api_keys')
+        text: root.selectedProvider
+                ? "<style>a:link {color: " + Theme.primaryColor + ";}</style>"
+                  + root.selectedProvider.apiKeyInstructions
+                : ""
         wrapMode: Text.Wrap
         color: Theme.highlightColor
         textFormat: Text.RichText
-        leftPadding: Theme.paddingLarge
-        rightPadding: Theme.paddingLarge
-        x: Theme.horizontalPageMargin
+        x: Theme.horizontalPageMargin + Theme.paddingLarge
+        width: parent.width - 2 * x
+
+        onLinkActivated: Qt.openUrlExternally(link)
+    }
+
+    Label {
+        visible: !!root.selectedProvider
+                 && root.selectedProvider.attributionText.length > 0
+
+        text: root.selectedProvider ? root.selectedProvider.attributionText : ""
+        wrapMode: Text.Wrap
+        color: Theme.secondaryHighlightColor
+        textFormat: Text.StyledText
+        linkColor: Theme.primaryColor
+        x: Theme.horizontalPageMargin + Theme.paddingLarge
         width: parent.width - 2 * x
 
         onLinkActivated: Qt.openUrlExternally(link)

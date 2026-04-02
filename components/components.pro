@@ -12,27 +12,30 @@ TARGETPATH = $$[QT_INSTALL_QML]/$$MODULENAME
 
 QT += qml
 CONFIG += plugin link_pkgconfig
-PKGCONFIG += contentaction5
 
 # C++ sources
 SOURCES += plugin.cpp \
+    backendregistry.cpp \
     savedweathersmodel.cpp
 
 # C++ headers
 HEADERS += weather.h \
+           backendregistry.h \
            savedweathersmodel.h \
 
 import.files = *.qml *.js qmldir
 import.path = $$TARGETPATH
+backend.files = $$PWD/../backends/*.qml $$PWD/../backends/*.js
+backend.path = /usr/share/sailfish-weather/backends
 target.path = $$TARGETPATH
 
-OTHER_FILES += *.qml *.js
+OTHER_FILES += *.qml *.js $$PWD/../backends/*.qml $$PWD/../backends/*.js
 
 TS_FILE = $$OUT_PWD/sailfish_components_weather_qt5.ts
 EE_QM = $$OUT_PWD/sailfish_components_weather_qt5_eng_en.qm
 
-translations.commands += lupdate $$PWD -ts $$TS_FILE
-translations.depends = $$PWD/*.qml
+translations.commands += lupdate $$PWD $$PWD/../backends -ts $$TS_FILE
+translations.depends = $$PWD/*.qml $$PWD/../backends/*.qml $$PWD/../backends/*.js
 translations.CONFIG += no_check_exist no_link
 translations.output = $$TS_FILE
 translations.input = .
@@ -56,4 +59,4 @@ QMAKE_EXTRA_TARGETS += translations engineering_english
 
 PRE_TARGETDEPS += translations engineering_english
 
-INSTALLS += target import translations_install engineering_english_install
+INSTALLS += target import backend translations_install engineering_english_install

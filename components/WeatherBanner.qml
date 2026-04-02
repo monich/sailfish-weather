@@ -25,6 +25,7 @@ ListItem {
     readonly property bool _apiKeyProvided: WeatherProvider.isApiKeyProvided
     readonly property bool _unauthorized: forecastModel && forecastModel.status === Weather.Unauthorized
     readonly property int _forecastCount: forecastModel ? forecastModel.count : 0
+    readonly property string _providerImage: WeatherProvider.smallProviderImage()
 
     _backgroundColor: "transparent"
     onActiveChanged: if (!active) save()
@@ -54,7 +55,7 @@ ListItem {
 
     visible: enabled
     contentHeight: enabled ? column.height : 0
-    enabled: weather && weather.populated
+    enabled: weather && weather.populated && WeatherProvider.isLocationCompatible(weather)
 
     menu: Component {
         ContextMenu {
@@ -345,8 +346,27 @@ ListItem {
                 Row {
                     id: footerRow
 
+                    Label {
+                        //: Indicates when the shown forecast information was updated
+                        //: Displayed in the provider footer, e.g. ", updated 12:59, 1.3.2020"
+                        //% ", updated %1"
+                        text: forecastModel ? qsTrId("weather-la-comma_updated_time")
+                                              .arg(Format.formatDate(forecastModel.timestamp, Format.Timepoint))
+                                            : ""
+                        anchors.verticalCenter: parent.verticalCenter
+                        font.pixelSize: Theme.fontSizeExtraSmall
+                        highlighted: weatherBanner.highlighted || footer.down
+                        visible: _error && _forecastCount > 0
+                    }
+                    Item {
+                        height: 1
+                        width: Theme.paddingSmall
+                        visible: _error && _forecastCount > 0
+                    }
                     BusyIndicator {
-                        property bool loading: weatherBanner.loading && forecastModel.count > 0
+                        id: updateIndicator
+
+                        property bool loading: weatherBanner.loading && _forecastCount > 0
 
                         size: BusyIndicatorSize.Small
                         anchors.verticalCenter: parent.verticalCenter
@@ -365,25 +385,28 @@ ListItem {
                     }
                     Item {
                         height: 1
-                        width: Theme.paddingMedium
-                    }
-
-                    Image {
-                        anchors.verticalCenter: parent.verticalCenter
-                        source: WeatherProvider.smallProviderImage() + (highlighted ? Theme.highlightColor : Theme.primaryColor)
+                        width: Theme.paddingSmall
+                        visible: updateIndicator.loading || minimumTimeout.running
                     }
                     Label {
-                        //: Indicates when the shown forecast information was updated
-                        //: Displayed right after small Foreca logo, i.e. "FORECA, updated 12:59, 1.3.2020"
-                        //% ", updated %1"
-                        text: forecastModel ? qsTrId("weather-la-comma_updated_time")
-                                              .arg(Format.formatDate(forecastModel.timestamp, Format.Timepoint))
-                                            : ""
-                        anchors.verticalCenter: parent.verticalCenter
-                        font.pixelSize: Theme.fontSizeExtraSmall
-                        highlighted: weatherBanner.highlighted || footer.down
+                        id: attributionLabel
 
-                        visible: _error && _forecastCount > 0
+                        anchors.verticalCenter: parent.verticalCenter
+                        font.pixelSize: Theme.fontSizeTiny
+                        text: WeatherProvider.shortAttributionText()
+                        color: highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
+                        visible: expanded && text.length > 0
+                    }
+                    Item {
+                        height: 1
+                        width: Theme.paddingSmall
+                        visible: attributionLabel.visible
+                    }
+                    Image {
+                        anchors.verticalCenter: parent.verticalCenter
+                        source: _providerImage.length > 0
+                                ? _providerImage + (highlighted ? Theme.highlightColor : Theme.primaryColor)
+                                : ""
                     }
                 }
             }
@@ -416,6 +439,7 @@ ListItem {
         id: savedWeathersModel
 
         autoRefresh: true
+        provider: WeatherProvider.currentProvider()
     }
 
     WeatherModel {

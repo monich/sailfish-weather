@@ -11,10 +11,11 @@ CoverBackground {
     id: cover
 
     property QtObject weather: savedWeathersModel.currentWeather
+    readonly property string _providerImage: WeatherProvider.providerImage()
 
     property bool current: true
     property bool ready: loaded && !error  && !unauthorized
-    property bool loaded: weather
+    property bool loaded: weather && WeatherProvider.isLocationCompatible(weather)
     property bool error: loaded && savedWeathersModel.currentWeather.status == Weather.Error
     property bool apiKeyProvided: WeatherProvider.isApiKeyProvided
     property bool unauthorized: loaded && savedWeathersModel.currentWeather.status == Weather.Unauthorized
@@ -34,7 +35,9 @@ CoverBackground {
 
     CoverPlaceholder {
         visible: !ready
-        icon.source: WeatherProvider.providerImage() + (highlighted ? Theme.highlightColor : Theme.primaryColor)
+        icon.source: _providerImage.length > 0
+                     ? _providerImage + (highlighted ? Theme.highlightColor : Theme.primaryColor)
+                     : ""
         text: {
             if (!loaded) {
                 //% "Select location to check weather"

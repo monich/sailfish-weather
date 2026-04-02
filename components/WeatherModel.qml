@@ -12,6 +12,14 @@ WeatherRequest {
     property var savedWeathers
     property date timestamp: new Date()
     readonly property int locationId: !!weather ? weather.locationId : -1
+    readonly property string provider: weather ? WeatherProvider.locationProvider(weather) : WeatherProvider.defaultProviderId
+
+    onWeatherChanged: {
+        status = Weather.Null
+        latestObservation.active = false
+        latestObservation.requestedLocationId = -1
+        latestObservation.weatherJson = undefined
+    }
 
     readonly property WeatherRequest latestObservation: WeatherRequest {
         property var weatherJson
@@ -19,7 +27,7 @@ WeatherRequest {
         property int requestedLocationId: -1
 
         active: false
-        source: requestedLocationId > 0
+        source: requestedLocationId > 0 && weatherJson && WeatherProvider.isLocationCompatible(weatherJson)
                 ? WeatherProvider.latestObservationUrl(weatherJson)
                 : ""
 
@@ -33,13 +41,16 @@ WeatherRequest {
             if (stationName.length > 0) {
                 weatherJson["station"] = stationName
             }
-            savedWeathersModel.update(requestedLocationId, weatherJson)
+            if (savedWeathers) {
+                savedWeathers.update(requestedLocationId, weatherJson)
+            }
         }
 
         onStatusChanged: {
             if (status === Weather.Error || status == Weather.Unauthorized) {
                 if (savedWeathers) {
-                    savedWeathers.setErrorStatus(requestedLocationId, status)
+                    savedWeathers.setErrorStatus(requestedLocationId, status,
+                                                 WeatherProvider.locationProvider(weatherJson))
                 }
 
                 console.log("WeatherModel - could not obtain weather station data",
@@ -48,7 +59,9 @@ WeatherRequest {
         }
     }
 
-    source: locationId > 0 ? WeatherProvider.currentWeatherUrl(weather) : ""
+    source: locationId > 0 && WeatherProvider.isLocationCompatible(weather)
+            ? WeatherProvider.currentWeatherUrl(weather)
+            : ""
 
     // overriding WeatherRequest function
     function updateAllowed() {
@@ -67,6 +80,7 @@ WeatherRequest {
 
         var json = {
             "locationId": weather.locationId,
+            "provider": WeatherProvider.locationProvider(weather),
             "latitude": weather.latitude,
             "longitude": weather.longitude,
             "temperature": weatherData.temperature,
@@ -75,6 +89,23 @@ WeatherRequest {
             "description": weatherData.description,
             "timestamp": weatherData.timestamp
         }
+        var observationUrl = WeatherProvider.latestObservationUrl(json)
+
+        // Some backends reuse the same endpoint for both current conditions and
+        // latest observation details. Update immediately so the UI doesn't stay
+        // stuck in loading while waiting for a redundant second request.
+        if (!observationUrl || observationUrl.length === 0 || observationUrl === source) {
+            var stationName = WeatherProvider.handleObservationResult(result)
+            if (stationName.length > 0) {
+                json["station"] = stationName
+            }
+            if (savedWeathers) {
+                savedWeathers.update(locationId, json)
+            }
+            latestObservation.active = false
+            return
+        }
+
         latestObservation.weatherJson = json
         latestObservation.requestedLocationId = locationId
         latestObservation.active = true
@@ -83,7 +114,8 @@ WeatherRequest {
     onStatusChanged: {
         if (status === Weather.Error || status == Weather.Unauthorized) {
             if (savedWeathers) {
-                savedWeathers.setErrorStatus(locationId, status)
+                savedWeathers.setErrorStatus(locationId, status,
+                                             WeatherProvider.locationProvider(weather))
             }
 
             console.log("WeatherModel - could not obtain weather data",

@@ -21,10 +21,12 @@ class SavedWeathersModel: public QAbstractListModel
     Q_PROPERTY(int count READ count NOTIFY countChanged)
     Q_PROPERTY(Weather *currentWeather READ currentWeather NOTIFY currentWeatherChanged)
     Q_PROPERTY(bool autoRefresh READ autoRefresh WRITE setAutoRefresh NOTIFY autoRefreshChanged)
+    Q_PROPERTY(QString provider READ provider WRITE setProvider NOTIFY providerChanged)
 
 public:
     enum Roles {
         LocationId = Qt::UserRole,
+        Provider,
         Latitude,
         Longitude,
         Status,
@@ -48,23 +50,26 @@ public:
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
     virtual QVariant data(const QModelIndex &index, int role) const;
 
-    Q_INVOKABLE void setErrorStatus(int locationId, int status);
     Q_INVOKABLE void addLocation(const QVariantMap &locationMap);
-    Q_INVOKABLE void update(int locationId, const QVariantMap &weatherMap, Weather::Status status = Weather::Ready, bool internal = false);
-    Q_INVOKABLE void remove(int locationId);
-    Q_INVOKABLE Weather *get(int locationId);
     Q_INVOKABLE void moveToTop(int index);
     Q_INVOKABLE void save();
+    Q_INVOKABLE void setCurrentWeather(const QVariantMap &locationMap);
+    Q_INVOKABLE void setErrorStatus(int locationId, int status, const QString &provider = QString());
+    Q_INVOKABLE void update(int locationId, const QVariantMap &weatherMap,
+                            Weather::Status status = Weather::Ready);
+    Q_INVOKABLE void remove(int locationId, const QString &provider = QString());
+    Q_INVOKABLE Weather *get(int locationId, const QString &provider = QString());
 
     int count() const;
 
     Weather *currentWeather() const;
-    Q_INVOKABLE void setCurrentWeather(const QVariantMap &locationMap, bool internal = false);
 
     // Automatically reload cached data when it is changed by another model
     // Default false
     bool autoRefresh() const;
     void setAutoRefresh(bool enabled);
+    QString provider() const;
+    void setProvider(const QString &provider);
 
     void addLocation(Weather * weather);
     void load();
@@ -73,6 +78,7 @@ signals:
     void countChanged();
     void currentWeatherChanged();
     void autoRefreshChanged();
+    void providerChanged();
 
 protected:
     QHash<int, QByteArray> roleNames() const;
@@ -81,9 +87,13 @@ private:
     Weather *m_currentWeather;
     QList <Weather *> m_savedWeathers;
     bool m_autoRefresh;
+    QString m_provider;
     QFileSystemWatcher *m_fileWatcher;
 
-    int getWeatherIndex(int locationId);
+    int getWeatherIndex(int locationId, const QString &provider = QString()) const;
+    void clearLoadedState();
+    void setCurrentWeather(const QVariantMap &locationMap, bool internal);
+    void update(int locationId, const QVariantMap &weatherMap, Weather::Status status, bool internal);
 };
 
 QML_DECLARE_TYPE(SavedWeathersModel)
