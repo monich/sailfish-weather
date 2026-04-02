@@ -220,14 +220,14 @@ Page {
                 Label {
                     id: descriptionLabel
 
-                    property real lineHeight: height/lineCount
+                    property real lineHeight: height / lineCount
+
                     width: parent.width
                     color: highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
-                    text: !model.populated && model.status === Weather.Error ?
-                              //% "Loading current conditions failed"
-                              qsTrId("weather-la-loading_current_conditions_failed")
-                            :
-                              model.description
+                    text: !model.populated && model.status === Weather.Error
+                          ? //% "Loading current conditions failed"
+                            qsTrId("weather-la-loading_current_conditions_failed")
+                          : model.description
                     font.pixelSize: Theme.fontSizeSmall
                     elide: Text.ElideRight
                     wrapMode: Text.Wrap

@@ -24,7 +24,7 @@ Item {
         model: savedWeathersModel
         width: parent.width - 2*x
         pathItemCount: count > 4 ? 5 : Math.min(visibleItemCount, count)
-        height: Math.min(visibleItemCount, count)/visibleItemCount*maximumHeight
+        height: Math.min(visibleItemCount, count) / visibleItemCount * maximumHeight
         offset: rollIndex + rollOffset
         delegate: WeatherCoverItem {
             property bool aboutToSlideIn: view.rollOffset === 0 && model.index === (view.count - view.rollIndex) % view.count
@@ -32,7 +32,9 @@ Item {
             width: view.width
             visible: view.count <= 4 || !aboutToSlideIn
             topPadding: Theme.paddingLarge + Theme.paddingMedium
-            text: (model.status === Weather.Error || model.status === Weather.Unauthorized) ? model.city : TemperatureConverter.format(model.temperature) + " " + model.city
+            text: (model.status === Weather.Error || model.status === Weather.Unauthorized)
+                  ? model.city
+                  : TemperatureConverter.format(model.temperature) + " " + model.city
             description: {
                 if (model.status === Weather.Error) {
                     //% "Loading failed"
@@ -57,8 +59,10 @@ Item {
         }
         SequentialAnimation on rollOffset {
             id: rollAnimation
+
             running: cover.status === Cover.Active && view.visible && view.count > 4
             loops: Animation.Infinite
+
             NumberAnimation {
                 from: 0
                 to: 1

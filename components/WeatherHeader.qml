@@ -23,7 +23,7 @@ MouseArea {
         id: weatherImage
 
         x: Theme.horizontalPageMargin
-        y: 2*Theme.horizontalPageMargin
+        y: pageHeader.height
         highlighted: root.highlighted
         height: sourceSize.height > 0 ? sourceSize.height : 256*Theme.pixelRatio
         weatherType: weather && weather.weatherType.length > 0 ? weather.weatherType : ""
@@ -40,7 +40,8 @@ MouseArea {
             right: parent.right
         }
         title: weather ? (weather.city + ", " + weather.country
-                          + (weather.adminArea ? (", " + weather.adminArea) : "")) : ""
+                          + (weather.adminArea ? (", " + weather.adminArea) : ""))
+                       : ""
     }
     Column {
         id: column
@@ -52,8 +53,8 @@ MouseArea {
             right: parent.right
             rightMargin: Theme.horizontalPageMargin
         }
-
         spacing: -Theme.paddingMedium
+
         Item {
             width: parent.width
             height: secondaryLabel.height + timestampLabel.height
