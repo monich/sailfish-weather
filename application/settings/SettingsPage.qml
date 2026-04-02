@@ -21,8 +21,11 @@ ApplicationSettings {
     }
 
     function weatherProviderMenuIndex() {
+        var hasPlaceholderItem = WeatherProvider.providers.length === 0 || WeatherProvider.allowUnsetProvider
+        var menuPrefixCount = hasPlaceholderItem ? 1 : 0
+
         return selectedProviderIndex >= 0
-                ? selectedProviderIndex + (WeatherProvider.allowUnsetProvider ? 1 : 0)
+                ? selectedProviderIndex + menuPrefixCount
                 : 0
     }
 
@@ -104,10 +107,17 @@ ApplicationSettings {
 
         menu: ContextMenu {
             MenuItem {
-                //% "None"
-                text: qsTrId("weather-me-none")
-                visible: WeatherProvider.allowUnsetProvider
-                onClicked: weatherDataProvider.value = ""
+                text: WeatherProvider.providers.length === 0
+                        ? //% "None available"
+                        qsTrId("weather-me-none_available")
+                        : //% "None"
+                        qsTrId("weather-me-none")
+                visible: WeatherProvider.providers.length === 0 || WeatherProvider.allowUnsetProvider
+                onClicked: {
+                    if (WeatherProvider.providers.length > 0) {
+                        weatherDataProvider.value = ""
+                    }
+                }
             }
 
             Repeater {

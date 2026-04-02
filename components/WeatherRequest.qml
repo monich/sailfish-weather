@@ -101,7 +101,6 @@ QtObject {
             const url = getUrl()
             var cachedData = WeatherResponseCache.freshResponse(url)
             if (cachedData !== undefined) {
-                console.log("WeatherRequest: serving fresh cached response for", url)
                 requestFinished(cachedData)
                 if (status === Weather.Loading) {
                     status = Weather.Ready
@@ -126,12 +125,10 @@ QtObject {
                 if (request.readyState == XMLHttpRequest.DONE) {
                     timeout.stop()
                     if (request.status === 200) {
-                        console.log("WeatherRequest: received HTTP 200 for", url)
                         var data = responseType === "text" ? request.responseText : JSON.parse(request.responseText)
                         WeatherResponseCache.store(url, data, WeatherResponseCache.responseHeaders(request))
                         notifyInflightSuccess(url, data)
                     } else if (request.status === 304) {
-                        console.log("WeatherRequest: received HTTP 304 for", url)
                         WeatherResponseCache.updateMetadata(url, WeatherResponseCache.responseHeaders(request))
                         var cachedResponse = WeatherResponseCache.cachedResponse(url)
                         if (cachedResponse !== undefined) {
@@ -154,12 +151,12 @@ QtObject {
             request.open("GET", url)
             var headers = WeatherProvider.requestHeaders()
             var cacheHeaders = WeatherResponseCache.conditionalHeaders(url)
-            for (var name in cacheHeaders) {
-                headers[name] = cacheHeaders[name]
+            for (var cacheHeaderName in cacheHeaders) {
+                headers[cacheHeaderName] = cacheHeaders[cacheHeaderName]
             }
-            console.log("WeatherRequest: sending request for", url, "with headers", JSON.stringify(headers))
-            for (var name in headers) {
-                request.setRequestHeader(name, headers[name])
+            console.log("WeatherRequest: sending request for", url)
+            for (var requestHeaderName in headers) {
+                request.setRequestHeader(requestHeaderName, headers[requestHeaderName])
             }
             request.send()
         }

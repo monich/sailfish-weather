@@ -8,6 +8,8 @@ import Sailfish.Silica 1.0
 import Sailfish.Weather 1.0
 
 Item {
+    readonly property string _providerImage: WeatherProvider.smallProviderImage()
+
     WeatherCoverItem {
         x: Theme.paddingLarge
         width: parent.width - 2*x
@@ -59,7 +61,9 @@ Item {
             bottomMargin: Math.round(Theme.itemSizeSmall / 2)
             horizontalCenter: parent.horizontalCenter
         }
-        source: WeatherProvider.smallProviderImage() + (highlighted ? Theme.highlightColor : Theme.primaryColor)
+        source: _providerImage.length > 0
+                ? _providerImage + (highlighted ? Theme.highlightColor : Theme.primaryColor)
+                : ""
     }
 
 }

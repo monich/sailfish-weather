@@ -341,9 +341,15 @@ QtObject {
             return weather
         }
 
-        var adjustedWeather = {}
-        for (var key in weather) {
-            adjustedWeather[key] = weather[key]
+        // Only copy the location-identifying fields needed by backend URL
+        // builders. If source depends on dynamic weather data like temperature
+        // or description, updating the current weather can re-trigger the same
+        // request binding path.
+        var adjustedWeather = {
+            "locationId": weather.locationId,
+            "provider": weather.provider,
+            "latitude": weather.latitude,
+            "longitude": weather.longitude
         }
         adjustedWeather.latitude = truncateToPrecision(weather.latitude, precision)
         adjustedWeather.longitude = truncateToPrecision(weather.longitude, precision)

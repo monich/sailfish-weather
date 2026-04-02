@@ -11,7 +11,7 @@ Item {
     id: root
 
     property int visibleItemCount: 4
-    property int maximumHeight: (parent ? parent.height : 0) - Theme.itemSizeSmall/2
+    property int maximumHeight: (parent ? parent.height : Theme.itemSizeSmall) - Theme.itemSizeSmall/2
     property int itemHeight: Math.round(maximumHeight / visibleItemCount)
 
     PathView {

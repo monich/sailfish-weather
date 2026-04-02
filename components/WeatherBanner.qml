@@ -25,6 +25,7 @@ ListItem {
     readonly property bool _apiKeyProvided: WeatherProvider.isApiKeyProvided
     readonly property bool _unauthorized: forecastModel && forecastModel.status === Weather.Unauthorized
     readonly property int _forecastCount: forecastModel ? forecastModel.count : 0
+    readonly property string _providerImage: WeatherProvider.smallProviderImage()
 
     _backgroundColor: "transparent"
     onActiveChanged: if (!active) save()
@@ -385,7 +386,7 @@ ListItem {
                     Item {
                         height: 1
                         width: Theme.paddingSmall
-                        visible: updateIndicator.loading || updateIndicator.minimumTimeout.running
+                        visible: updateIndicator.loading || minimumTimeout.running
                     }
                     Label {
                         id: attributionLabel
@@ -403,7 +404,9 @@ ListItem {
                     }
                     Image {
                         anchors.verticalCenter: parent.verticalCenter
-                        source: WeatherProvider.smallProviderImage() + (highlighted ? Theme.highlightColor : Theme.primaryColor)
+                        source: _providerImage.length > 0
+                                ? _providerImage + (highlighted ? Theme.highlightColor : Theme.primaryColor)
+                                : ""
                     }
                 }
             }

@@ -14,6 +14,7 @@ BackgroundItem {
     property int topMargin: Theme.paddingLarge
     property int bottomMargin: 2*Theme.paddingLarge
     readonly property bool hasProvider: WeatherProvider.currentProvider().length > 0
+    readonly property string providerImage: WeatherProvider.providerImage()
 
     visible: hasProvider
     height: hasProvider ? column.height + topMargin + bottomMargin : 0
@@ -38,7 +39,9 @@ BackgroundItem {
         }
         Image {
             anchors.horizontalCenter: parent.horizontalCenter
-            source: WeatherProvider.providerImage() + (highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor)
+            source: providerImage.length > 0
+                    ? providerImage + (highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor)
+                    : ""
         }
         Label {
             visible: text.length > 0

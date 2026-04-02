@@ -11,6 +11,7 @@ CoverBackground {
     id: cover
 
     property QtObject weather: savedWeathersModel.currentWeather
+    readonly property string _providerImage: WeatherProvider.providerImage()
 
     property bool current: true
     property bool ready: loaded && !error  && !unauthorized
@@ -34,7 +35,9 @@ CoverBackground {
 
     CoverPlaceholder {
         visible: !ready
-        icon.source: WeatherProvider.providerImage() + (highlighted ? Theme.highlightColor : Theme.primaryColor)
+        icon.source: _providerImage.length > 0
+                     ? _providerImage + (highlighted ? Theme.highlightColor : Theme.primaryColor)
+                     : ""
         text: {
             if (!loaded) {
                 //% "Select location to check weather"
