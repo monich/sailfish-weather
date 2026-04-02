@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 import QtQuick 2.6
+import "BackendUtils.js" as BackendUtils
 import "WeatherTypeDescriptions.js" as WeatherTypeDescriptions
 
 QtObject {
@@ -117,29 +118,8 @@ QtObject {
                 weatherData[weatherData.length] = weather
             }
 
-            if (weatherData.length < visibleCount + 1) {
-                return undefined
-            }
-
-            var minimumTemperature = weatherData[0].temperature
-            var maximumTemperature = weatherData[0].temperature
-            for (i = 1; i < visibleCount + 1; i++) {
-                var temperature = weatherData[i].temperature
-                minimumTemperature = Math.min(minimumTemperature, temperature)
-                maximumTemperature = Math.max(maximumTemperature, temperature)
-            }
-            var range = maximumTemperature - minimumTemperature
-            if (range < minimumHourlyRange) {
-                minimumTemperature -= Math.floor((minimumHourlyRange - range) / 2)
-                range = minimumHourlyRange
-            }
-
-            for (i = 0; i < visibleCount + 1; i++) {
-                weatherData[i].relativeTemperature = (weatherData[i].temperature - minimumTemperature) / range
-                weatherData[i].temperature = Math.floor(weatherData[i].temperature)
-            }
-
-            return weatherData
+            return BackendUtils.normalizeHourlyTemperatures(
+                        weatherData, visibleCount, minimumHourlyRange, true)
         }
 
         var groupedByDay = forecast.reduce(function(container, entry) {
@@ -162,11 +142,11 @@ QtObject {
             var entries = groupedByDay[day]
             var representative = entries[0]
             var representativeDiff = Math.abs(hourOfDay(representative.time) - 12)
-            var details = representative.data.instant.details
-            var minimumDailyTemperature = details.air_temperature
-            var maximumDailyTemperature = details.air_temperature
+            var representativeDetails = representative.data.instant.details
+            var minimumDailyTemperature = representativeDetails.air_temperature
+            var maximumDailyTemperature = representativeDetails.air_temperature
             var accumulatedPrecipitation = 0
-            var maximumWindSpeed = details.wind_speed || 0
+            var maximumWindSpeed = representativeDetails.wind_speed || 0
 
             for (i = 0; i < entries.length; i++) {
                 var point = entries[i]

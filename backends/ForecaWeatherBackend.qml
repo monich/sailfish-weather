@@ -5,6 +5,7 @@
 
 import QtQuick 2.6
 import "ForecaToken.js" as ForecaToken
+import "BackendUtils.js" as BackendUtils
 import "WeatherTypeDescriptions.js" as WeatherTypeDescriptions
 
 QtObject {
@@ -119,22 +120,8 @@ QtObject {
         }
 
         if (hourly) {
-            var minimumTemperature = weatherData[0].temperature
-            var maximumTemperature = weatherData[0].temperature
-            for (i = 1; i < visibleCount + 1; i++) {
-                var temperature = weatherData[i].temperature
-                minimumTemperature = Math.min(minimumTemperature, temperature)
-                maximumTemperature = Math.max(maximumTemperature, temperature)
-            }
-            var range = maximumTemperature - minimumTemperature
-            if (range < minimumHourlyRange) {
-                minimumTemperature -= Math.floor((minimumHourlyRange - range ) / 2)
-                range = minimumHourlyRange
-            }
-
-            for (i = 0; i < visibleCount + 1; i++) {
-                weatherData[i].relativeTemperature = (weatherData[i].temperature - minimumTemperature) / range
-            }
+            return BackendUtils.normalizeHourlyTemperatures(
+                        weatherData, visibleCount, minimumHourlyRange, false)
         }
 
         return weatherData

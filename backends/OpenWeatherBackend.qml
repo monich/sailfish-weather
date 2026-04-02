@@ -5,6 +5,7 @@
 // @author Anton Turko <turok@duck.com>
 
 import QtQuick 2.6
+import "BackendUtils.js" as BackendUtils
 
 QtObject {
     readonly property string openWeatherApi: "https://api.openweathermap.org/data/2.5/"
@@ -97,23 +98,8 @@ QtObject {
         }
 
         if (hourly) {
-            var minimumTemperature = weatherData[0].temperature
-            var maximumTemperature = weatherData[0].temperature
-            for (i = 1; i < visibleCount + 1; i++) {
-                var temperature = weatherData[i].temperature
-                minimumTemperature = Math.min(minimumTemperature, temperature)
-                maximumTemperature = Math.max(maximumTemperature, temperature)
-            }
-            var range = maximumTemperature - minimumTemperature
-            if (range < minimumHourlyRange) {
-                minimumTemperature -= Math.floor((minimumHourlyRange - range ) / 2)
-                range = minimumHourlyRange
-            }
-
-            for (i = 0; i < visibleCount + 1; i++) {
-                weatherData[i].relativeTemperature = (weatherData[i].temperature - minimumTemperature) / range
-                weatherData[i].temperature = Math.floor(weatherData[i].temperature)
-            }
+            return BackendUtils.normalizeHourlyTemperatures(
+                        weatherData, visibleCount, minimumHourlyRange, true)
         } else {
             var groupedByDay = weatherData.reduce(function(container, weather) {
                 var timestamp = weather.timestamp
