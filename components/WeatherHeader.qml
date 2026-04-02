@@ -23,7 +23,7 @@ MouseArea {
         id: weatherImage
 
         x: Theme.horizontalPageMargin
-        y: 2*Theme.horizontalPageMargin
+        y: pageHeader.height
         highlighted: root.highlighted
         height: sourceSize.height > 0 ? sourceSize.height : 256*Theme.pixelRatio
         weatherType: weather && weather.weatherType.length > 0 ? weather.weatherType : ""
