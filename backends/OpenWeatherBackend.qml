@@ -115,25 +115,25 @@ QtObject {
             }, {})
 
             var weatherDayByDay = []
-            for(var date in groupedByDay) {
+            for (var date in groupedByDay) {
                 var weathers = groupedByDay[date]
-                weather = weathers[0]
+                var weather = weathers[0]
                 var precipitation = weather.accumulatedPrecipitation
-                minimumTemperature = weather.temperature
-                maximumTemperature = weather.temperature
+                var minimumTemperature = weather.temperature
+                var maximumTemperature = weather.temperature
                 var middayDate = new Date(weather.timestamp)
                 middayDate.setHours(12)
                 middayDate.setMinutes(0)
                 var dateDiff = Math.abs(weather.timestamp - middayDate)
 
-                for (i = 1; i < weathers.length; i++) {
+                for (var weatherIndex = 1; weatherIndex < weathers.length; weatherIndex++) {
                     precipitation += weather.accumulatedPrecipitation
-                    temperature = weathers[i].temperature
+                    var temperature = weathers[weatherIndex].temperature
                     minimumTemperature = Math.min(minimumTemperature, temperature)
                     maximumTemperature = Math.max(maximumTemperature, temperature)
-                    var diff = Math.abs(weathers[i].timestamp - middayDate)
+                    var diff = Math.abs(weathers[weatherIndex].timestamp - middayDate)
                     if (diff < dateDiff) {
-                        weather = weathers[i]
+                        weather = weathers[weatherIndex]
                         dateDiff = diff
                     }
                 }

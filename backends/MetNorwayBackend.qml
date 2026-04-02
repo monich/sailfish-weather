@@ -123,23 +123,23 @@ QtObject {
         }
 
         var groupedByDay = forecast.reduce(function(container, entry) {
-            var details = entry.data.instant ? entry.data.instant.details : undefined
-            if (details === undefined || details.air_temperature === undefined) {
+            var entryDetails = entry.data.instant ? entry.data.instant.details : undefined
+            if (entryDetails === undefined || entryDetails.air_temperature === undefined) {
                 return container
             }
 
-            var day = entry.time.substring(0, 10)
-            if (!container[day]) {
-                container[day] = []
+            var dayKey = entry.time.substring(0, 10)
+            if (!container[dayKey]) {
+                container[dayKey] = []
             }
-            container[day].push(entry)
+            container[dayKey].push(entry)
             return container
         }, {})
 
         var days = Object.keys(groupedByDay).sort()
         for (var dayIndex = 0; dayIndex < days.length; dayIndex++) {
-            var day = days[dayIndex]
-            var entries = groupedByDay[day]
+            var groupedDay = days[dayIndex]
+            var entries = groupedByDay[groupedDay]
             var representative = entries[0]
             var representativeDiff = Math.abs(hourOfDay(representative.time) - 12)
             var representativeDetails = representative.data.instant.details
@@ -148,8 +148,8 @@ QtObject {
             var accumulatedPrecipitation = 0
             var maximumWindSpeed = representativeDetails.wind_speed || 0
 
-            for (i = 0; i < entries.length; i++) {
-                var point = entries[i]
+            for (var entryIndex = 0; entryIndex < entries.length; entryIndex++) {
+                var point = entries[entryIndex]
                 var pointDetails = point.data.instant.details
                 var pointTemperature = pointDetails.air_temperature
 
@@ -166,11 +166,11 @@ QtObject {
             }
 
             var dailyWeather = getWeatherData(representative)
-            var representativeDetails = representative.data.instant.details
+            var selectedDetails = representative.data.instant.details
             dailyWeather.timestamp = new Date(representative.time)
             dailyWeather.accumulatedPrecipitation = accumulatedPrecipitation
             dailyWeather.maximumWindSpeed = Math.round(maximumWindSpeed)
-            dailyWeather.windDirection = representativeDetails.wind_from_direction
+            dailyWeather.windDirection = selectedDetails.wind_from_direction
             dailyWeather.high = Math.floor(maximumDailyTemperature)
             dailyWeather.low = Math.round(minimumDailyTemperature)
             weatherData[weatherData.length] = dailyWeather
