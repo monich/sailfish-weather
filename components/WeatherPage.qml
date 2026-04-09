@@ -12,8 +12,14 @@ Page {
 
     property var weather
     property var weatherModel
+    property var savedWeathersModel
     property int currentIndex
     property bool current
+    readonly property bool canSetCurrent: !!savedWeathersModel
+                                          && !!weather
+                                          && (!savedWeathersModel.currentWeather
+                                              || savedWeathersModel.currentWeather.locationId !== weather.locationId
+                                              || savedWeathersModel.currentWeather.provider !== weather.provider)
 
     SilicaFlickable {
         anchors {
@@ -26,9 +32,15 @@ Page {
         VerticalScrollDecorator {}
 
         PullDownMenu {
-            visible: forecastModel.count > 0
+            visible: forecastModel.count > 0 || root.canSetCurrent
             busy: forecastModel.status === Weather.Loading
 
+            MenuItem {
+                visible: root.canSetCurrent
+                //% "Set as current"
+                text: qsTrId("weather-me-set_as_current")
+                onDelayedClick: savedWeathersModel.setCurrentWeather(WeatherProvider.locationMap(root.weather))
+            }
             MenuItem {
                 visible: WeatherProvider.externalUrl(weather).trim().length > 0
                 //% "More information"

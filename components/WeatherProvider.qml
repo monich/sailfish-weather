@@ -207,6 +207,31 @@ QtObject {
         return providerId
     }
 
+    function locationMap(weather) {
+        if (!weather) {
+            return {}
+        }
+
+        return {
+            "locationId": weather.locationId,
+            "provider": weather.provider,
+            "latitude": weather.latitude,
+            "longitude": weather.longitude,
+            "city": weather.city,
+            "state": weather.state,
+            "adminArea": weather.adminArea,
+            "adminArea2": weather.adminArea2,
+            "station": weather.station,
+            "country": weather.country,
+            "temperature": weather.temperature,
+            "feelsLikeTemperature": weather.feelsLikeTemperature,
+            "weatherType": weather.weatherType,
+            "description": weather.description,
+            "timestamp": weather.timestamp,
+            "populated": weather.populated
+        }
+    }
+
     function isLocationCompatible(weather) {
         return locationProvider(weather) === currentProvider()
     }
