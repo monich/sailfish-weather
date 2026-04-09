@@ -29,6 +29,7 @@ ListModel {
                 return locale.split("_")[0]
             }
         }
+        fallbackSessionCache: true
 
         source: filter.length > 2 ? WeatherProvider.searchLocationUrl(filter, language) : ""
         onRequestFinished: {

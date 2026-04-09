@@ -20,9 +20,13 @@ ApplicationSettings {
         return temperatureUnitValue.value === "fahrenheit" ? 1 : 0
     }
 
+    function hasProviderPlaceholderSelection() {
+        return WeatherProvider.providers.length === 0
+                || !WeatherProvider.backendForId(WeatherProvider.defaultProviderId)
+    }
+
     function weatherProviderMenuIndex() {
-        var hasPlaceholderItem = WeatherProvider.providers.length === 0 || WeatherProvider.allowUnsetProvider
-        var menuPrefixCount = hasPlaceholderItem ? 1 : 0
+        var menuPrefixCount = hasProviderPlaceholderSelection() ? 1 : 0
 
         return selectedProviderIndex >= 0
                 ? selectedProviderIndex + menuPrefixCount
@@ -106,16 +110,18 @@ ApplicationSettings {
         Component.onCompleted: root.syncWeatherProviderIndex()
 
         menu: ContextMenu {
-            MenuItem {
-                text: WeatherProvider.providers.length === 0
-                        ? //% "None available"
-                        qsTrId("weather-me-none_available")
-                        : //% "None"
-                        qsTrId("weather-me-none")
-                visible: WeatherProvider.providers.length === 0 || WeatherProvider.allowUnsetProvider
-                onClicked: {
-                    if (WeatherProvider.providers.length > 0) {
-                        weatherDataProvider.value = ""
+            Loader {
+                active: root.hasProviderPlaceholderSelection()
+                sourceComponent: MenuItem {
+                    text: WeatherProvider.providers.length === 0
+                            ? //% "None available"
+                            qsTrId("weather-me-none_available")
+                            : //% "None"
+                            qsTrId("weather-me-none")
+                    onClicked: {
+                        if (WeatherProvider.providers.length > 0) {
+                            weatherDataProvider.value = ""
+                        }
                     }
                 }
             }
@@ -175,6 +181,21 @@ ApplicationSettings {
                  && root.selectedProvider.attributionText.length > 0
 
         text: root.selectedProvider ? root.selectedProvider.attributionText : ""
+        wrapMode: Text.Wrap
+        color: Theme.secondaryHighlightColor
+        textFormat: Text.StyledText
+        linkColor: Theme.primaryColor
+        x: Theme.horizontalPageMargin + Theme.paddingLarge
+        width: parent.width - 2 * x
+
+        onLinkActivated: Qt.openUrlExternally(link)
+    }
+
+    Label {
+        visible: !!root.selectedProvider
+                 && root.selectedProvider.locationSearchAttributionText.length > 0
+
+        text: root.selectedProvider ? root.selectedProvider.locationSearchAttributionText : ""
         wrapMode: Text.Wrap
         color: Theme.secondaryHighlightColor
         textFormat: Text.StyledText

@@ -51,6 +51,7 @@ Page {
                     pageStack.animatorPush("WeatherPage.qml", {
                         "weather": weather,
                         "weatherModel": currentWeatherModel,
+                        "savedWeathersModel": savedWeathersModel,
                         "current": true
                     })
                 }
@@ -177,7 +178,8 @@ Page {
             onClicked: {
                 pageStack.animatorPush("WeatherPage.qml", {
                     "weather": savedWeathersModel.get(model.locationId, model.provider),
-                    "weatherModel": weatherModels[weatherApplication.weatherModelKey(model.provider, model.locationId)]
+                    "weatherModel": weatherModels[weatherApplication.weatherModelKey(model.provider, model.locationId)],
+                    "savedWeathersModel": savedWeathersModel
                 })
             }
 
@@ -264,25 +266,7 @@ Page {
                             if (setCurrentWhenClosed) {
                                 var current = savedWeathersModel.currentWeather
                                 if (!current || current.locationId !== model.locationId) {
-                                    var weather = {
-                                        "locationId": model.locationId,
-                                        "provider": model.provider,
-                                        "latitude": model.latitude,
-                                        "longitude": model.longitude,
-                                        "city": model.city,
-                                        "state": model.state,
-                                        "adminArea": model.adminArea,
-                                        "adminArea2": model.adminArea2,
-                                        "station": model.station,
-                                        "country": model.country,
-                                        "temperature": model.temperature,
-                                        "feelsLikeTemperature": model.feelsLikeTemperature,
-                                        "weatherType": model.weatherType,
-                                        "description": model.description,
-                                        "timestamp": model.timestamp,
-                                        "populated": model.populated
-                                    }
-                                    savedWeathersModel.setCurrentWeather(weather)
+                                    savedWeathersModel.setCurrentWeather(WeatherProvider.locationMap(model))
 
                                 }
                                 setCurrentWhenClosed = false

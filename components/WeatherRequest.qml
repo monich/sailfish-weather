@@ -16,6 +16,7 @@ QtObject {
     property bool active: true
     property string source
     property string responseType: "json"
+    property bool fallbackSessionCache
     readonly property bool online: WeatherConnectionHelper.online
     property int status: Weather.Null
     property var request
@@ -126,7 +127,9 @@ QtObject {
                     timeout.stop()
                     if (request.status === 200) {
                         var data = responseType === "text" ? request.responseText : JSON.parse(request.responseText)
-                        WeatherResponseCache.store(url, data, WeatherResponseCache.responseHeaders(request))
+                        WeatherResponseCache.store(url, data,
+                                                   WeatherResponseCache.responseHeaders(request),
+                                                   fallbackSessionCache)
                         notifyInflightSuccess(url, data)
                     } else if (request.status === 304) {
                         WeatherResponseCache.updateMetadata(url, WeatherResponseCache.responseHeaders(request))

@@ -47,7 +47,17 @@ function cacheEntry(url) {
 
 function freshResponse(url) {
     var entry = cacheEntry(url)
-    if (!entry || entry.expiresAt === undefined || entry.expiresAt === null) {
+    if (!entry) {
+        debugLog(debugPrefix(url), "cache miss (no fresh entry)")
+        return undefined
+    }
+
+    if (entry.sessionCache) {
+        debugLog(debugPrefix(url), "cache hit (session)")
+        return entry.data
+    }
+
+    if (entry.expiresAt === undefined || entry.expiresAt === null) {
         debugLog(debugPrefix(url), "cache miss (no fresh entry)")
         return undefined
     }
@@ -127,9 +137,9 @@ function hasValidator(headers) {
     return !!lastModified && lastModified.length > 0
 }
 
-function store(url, data, headers) {
+function store(url, data, headers, fallbackSessionCache) {
     var expiresAt = parseExpires(headers)
-    if (expiresAt === undefined && !hasValidator(headers)) {
+    if (expiresAt === undefined && !hasValidator(headers) && !fallbackSessionCache) {
         debugLog(debugPrefix(url), "not caching response (no expiry or validator)")
         return
     }
@@ -138,11 +148,17 @@ function store(url, data, headers) {
         "data": data,
         "createdAt": Date.now(),
         "expiresAt": expiresAt,
-        "lastModified": headers["last-modified"] || ""
+        "lastModified": headers["last-modified"] || "",
+        "sessionCache": fallbackSessionCache && expiresAt === undefined
     }
-    debugLog(debugPrefix(url), "stored response (expires:",
-             describeExpiry(expiresAt) + ", last-modified:",
-             (headers["last-modified"] || "none") + ")")
+    if (entries[url].sessionCache) {
+        debugLog(debugPrefix(url), "stored response (session cache, last-modified:",
+                 (headers["last-modified"] || "none") + ")")
+    } else {
+        debugLog(debugPrefix(url), "stored response (expires:",
+                 describeExpiry(expiresAt) + ", last-modified:",
+                 (headers["last-modified"] || "none") + ")")
+    }
 }
 
 function updateMetadata(url, headers) {
@@ -159,9 +175,14 @@ function updateMetadata(url, headers) {
     if (headers["last-modified"] !== undefined) {
         entry.lastModified = headers["last-modified"]
     }
-    debugLog(debugPrefix(url), "updated cache metadata (expires:",
-             describeExpiry(entry.expiresAt) + ", last-modified:",
-             (entry.lastModified || "none") + ")")
+    if (entry.sessionCache && entry.expiresAt === undefined) {
+        debugLog(debugPrefix(url), "updated cache metadata (session cache, last-modified:",
+                 (entry.lastModified || "none") + ")")
+    } else {
+        debugLog(debugPrefix(url), "updated cache metadata (expires:",
+                 describeExpiry(entry.expiresAt) + ", last-modified:",
+                 (entry.lastModified || "none") + ")")
+    }
 }
 
 function responseHeaders(request) {
@@ -191,7 +212,12 @@ function parseExpires(headers) {
         }
     }
 
-    return parseHttpDate(headers["expires"])
+    var expiresAt = parseHttpDate(headers["expires"])
+    if (expiresAt !== undefined) {
+        return expiresAt
+    }
+
+    return undefined
 }
 
 function parseHttpDate(value) {

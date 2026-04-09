@@ -13,9 +13,7 @@ QtObject {
 
     readonly property var backends: loadBackends()
     readonly property var providers: providerMetadata(backends)
-    readonly property string defaultProviderId: ""
-    readonly property string legacyProviderId: backends.length > 0 ? backends[0].providerId() : ""
-    readonly property bool allowUnsetProvider: backends.length > 1
+    readonly property string defaultProviderId: "met_norway"
     readonly property var name: providerNameMap(providers)
     readonly property var backend: backendForId(effectiveProviderId(weatherProvider.value))
 
@@ -88,7 +86,8 @@ QtObject {
                 "title": backends[i].providerTitle(),
                 "requiresApiKey": backends[i].requiresApiKey(),
                 "apiKeyInstructions": backends[i].apiKeyInstructions(),
-                "attributionText": callBackend(backends[i], "attributionText", "")
+                "attributionText": callBackend(backends[i], "attributionText", ""),
+                "locationSearchAttributionText": callBackend(backends[i], "locationSearchAttributionText", "")
             }
         }
 
@@ -114,11 +113,15 @@ QtObject {
     }
 
     function effectiveProviderId(providerId) {
-        if (typeof providerId === "string" && providerId.length > 0) {
+        if (backendForId(providerId)) {
             return providerId
         }
 
-        return backends.length === 1 ? backends[0].providerId() : ""
+        if (backendForId(defaultProviderId)) {
+            return defaultProviderId
+        }
+
+        return ""
     }
 
     function backendForId(providerId) {
@@ -192,10 +195,41 @@ QtObject {
 
     function locationProvider(weather) {
         if (weather === undefined || weather === null) {
-            return defaultProviderId
+            return backendForId(defaultProviderId) ? defaultProviderId : ""
         }
 
-        return weather.provider ? weather.provider : legacyProviderId
+        if (typeof weather.provider === "string" && weather.provider.length > 0) {
+            return weather.provider
+        }
+
+        var providerId = backendForId(defaultProviderId) ? defaultProviderId : ""
+        weather["provider"] = providerId
+        return providerId
+    }
+
+    function locationMap(weather) {
+        if (!weather) {
+            return {}
+        }
+
+        return {
+            "locationId": weather.locationId,
+            "provider": weather.provider,
+            "latitude": weather.latitude,
+            "longitude": weather.longitude,
+            "city": weather.city,
+            "state": weather.state,
+            "adminArea": weather.adminArea,
+            "adminArea2": weather.adminArea2,
+            "station": weather.station,
+            "country": weather.country,
+            "temperature": weather.temperature,
+            "feelsLikeTemperature": weather.feelsLikeTemperature,
+            "weatherType": weather.weatherType,
+            "description": weather.description,
+            "timestamp": weather.timestamp,
+            "populated": weather.populated
+        }
     }
 
     function isLocationCompatible(weather) {
@@ -220,6 +254,10 @@ QtObject {
 
     function shortAttributionText() {
         return callBackend(backend, "shortAttributionText", "")
+    }
+
+    function locationSearchAttributionText() {
+        return callBackend(backend, "locationSearchAttributionText", "")
     }
 
     function forecastUrl(weather, hourly) {

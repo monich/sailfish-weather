@@ -13,6 +13,7 @@ Page {
     property bool error: locationsModel.status === Weather.Error
     property bool unauthorized: locationsModel.status === Weather.Unauthorized
     property bool loading: locationsModel.status === Weather.Loading || loadingTimer.running
+    readonly property string locationSearchAttributionText: WeatherProvider.locationSearchAttributionText()
     objectName: "LocationSearchPage"
 
     Timer { id: loadingTimer; interval: 600 }
@@ -66,6 +67,20 @@ Page {
                         locationsModel.filter = searchField.text.toLowerCase().trim()
                     }
                 }
+            }
+            Label {
+                visible: text.length > 0
+                x: Theme.horizontalPageMargin
+                width: parent.width - 2 * x
+                text: page.locationSearchAttributionText
+                color: Theme.secondaryHighlightColor
+                textFormat: Text.StyledText
+                linkColor: Theme.primaryColor
+                wrapMode: Text.Wrap
+                horizontalAlignment: Text.AlignHCenter
+                font.pixelSize: Theme.fontSizeTiny
+
+                onLinkActivated: Qt.openUrlExternally(link)
             }
         }
         BusyIndicator {
