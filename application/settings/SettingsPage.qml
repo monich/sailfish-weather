@@ -184,4 +184,19 @@ ApplicationSettings {
 
         onLinkActivated: Qt.openUrlExternally(link)
     }
+
+    Label {
+        visible: !!root.selectedProvider
+                 && root.selectedProvider.locationSearchAttributionText.length > 0
+
+        text: root.selectedProvider ? root.selectedProvider.locationSearchAttributionText : ""
+        wrapMode: Text.Wrap
+        color: Theme.secondaryHighlightColor
+        textFormat: Text.StyledText
+        linkColor: Theme.primaryColor
+        x: Theme.horizontalPageMargin + Theme.paddingLarge
+        width: parent.width - 2 * x
+
+        onLinkActivated: Qt.openUrlExternally(link)
+    }
 }

@@ -88,7 +88,8 @@ QtObject {
                 "title": backends[i].providerTitle(),
                 "requiresApiKey": backends[i].requiresApiKey(),
                 "apiKeyInstructions": backends[i].apiKeyInstructions(),
-                "attributionText": callBackend(backends[i], "attributionText", "")
+                "attributionText": callBackend(backends[i], "attributionText", ""),
+                "locationSearchAttributionText": callBackend(backends[i], "locationSearchAttributionText", "")
             }
         }
 
@@ -220,6 +221,10 @@ QtObject {
 
     function shortAttributionText() {
         return callBackend(backend, "shortAttributionText", "")
+    }
+
+    function locationSearchAttributionText() {
+        return callBackend(backend, "locationSearchAttributionText", "")
     }
 
     function forecastUrl(weather, hourly) {

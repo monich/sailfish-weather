@@ -44,6 +44,14 @@ QtObject {
         return qsTrId("weather-la-met-norway-attribution-short")
     }
 
+    function locationSearchAttributionText() {
+        //: Content between %1 and %2 is a link to the GeoNames web site.
+        //% "Location search by %1GeoNames%2."
+        return qsTrId("weather-la-geonames-attribution")
+                .arg("<a href='https://www.geonames.org/'>")
+                .arg("</a>")
+    }
+
     function maxPrecision() {
         return 4
     }
