@@ -19,6 +19,16 @@ MouseArea {
     height: childrenRect.height
 
     Behavior on height { NumberAnimation { duration: 200; easing.type: Easing.InOutQuad } }
+    PageHeader {
+        id: pageHeader
+
+        property int offset: _titleItem.y + _titleItem.height
+
+        title: weather ? (weather.city + ", " + weather.country
+                          + (weather.adminArea ? (", " + weather.adminArea) : ""))
+                       : ""
+    }
+
     WeatherImage {
         id: weatherImage
 
@@ -28,23 +38,9 @@ MouseArea {
         height: sourceSize.height > 0 ? sourceSize.height : 256*Theme.pixelRatio
         weatherType: weather && weather.weatherType.length > 0 ? weather.weatherType : ""
     }
-    PageHeader {
-        id: pageHeader
 
-        property int offset: _titleItem.y + _titleItem.height
-
-        anchors {
-            left: weatherImage.right
-            // weather graphics have some inline padding and rounded edges to give space for header
-            leftMargin: -Theme.itemSizeMedium
-            right: parent.right
-        }
-        title: weather ? (weather.city + ", " + weather.country
-                          + (weather.adminArea ? (", " + weather.adminArea) : ""))
-                       : ""
-    }
     Column {
-        id: column
+        id: locationColumn
 
         anchors {
             top: pageHeader.top
@@ -82,29 +78,35 @@ MouseArea {
                 text: Format.formatDate(timestamp, Format.TimeValue)
             }
         }
+    }
+
+    Column {
+        // temperature label parallel to weather image but description underneath to avoid overlaps
+        y: Math.max(weatherImage.y + weatherImage.height - weatherDescription.y,
+                    locationColumn.y + locationColumn.height)
+        x: Theme.horizontalPageMargin
+        width: parent.width - 2*x
+        spacing: -Theme.paddingMedium
+
         TemperatureLabel {
             anchors.right: parent.right
             temperature: weather ? TemperatureConverter.formatWithoutUnit(weather.temperature) : ""
             feelsLikeTemperature: weather ? TemperatureConverter.formatWithoutUnit(weather.feelsLikeTemperature) : ""
             color: highlighted ? Theme.highlightColor : Theme.primaryColor
         }
-    }
-    Label {
-        anchors {
-            top: column.bottom
-            topMargin: -Theme.paddingMedium
-            left: parent.left
-            right: parent.right
-            leftMargin: Theme.horizontalPageMargin
-            rightMargin: Theme.horizontalPageMargin
+
+        Label {
+            id: weatherDescription
+
+            width: parent.width
+            color: highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
+            font {
+                pixelSize: Theme.fontSizeExtraLarge
+                family: Theme.fontFamilyHeading
+            }
+            wrapMode: Text.Wrap
+            horizontalAlignment: Text.AlignRight
+            text: weather ? weather.description : ""
         }
-        color: highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
-        font {
-            pixelSize: Theme.fontSizeExtraLarge
-            family: Theme.fontFamilyHeading
-        }
-        wrapMode: Text.Wrap
-        horizontalAlignment: Text.AlignRight
-        text: weather ? weather.description : ""
     }
 }
