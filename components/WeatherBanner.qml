@@ -338,19 +338,23 @@ ListItem {
                         Qt.openUrlExternally(WeatherProvider.externalUrl(savedWeathersModel.currentWeather))
                 }
 
-                width: footerRow.width
-                height: footerRow.height + Theme.paddingSmall
-                anchors { right: parent.right; rightMargin: Theme.horizontalPageMargin }
-                enabled: savedWeathersModel.currentWeather && savedWeathersModel.currentWeather.populated && !_error && expanded
+                width: footerRow.width + attributionRow.width
+                height: Math.max(footerRow.height, attributionRow.height) + Theme.paddingSmall
+                anchors {
+                    right: parent.right
+                    rightMargin: Theme.horizontalPageMargin
+                }
+                enabled: savedWeathersModel.currentWeather
+                         && savedWeathersModel.currentWeather.populated
+                         && !_error
+                         && expanded
 
                 Row {
                     id: footerRow
 
+                    height: Math.max(footerRow.implicitHeight, attributionRow.implicitHeight)
                     Label {
-                        //: Indicates when the shown forecast information was updated
-                        //: Displayed in the provider footer, e.g. ", updated 12:59, 1.3.2020"
-                        //% ", updated %1"
-                        text: forecastModel ? qsTrId("weather-la-comma_updated_time")
+                        text: forecastModel ? qsTrId("weather-la-updated_time")
                                               .arg(Format.formatDate(forecastModel.timestamp, Format.Timepoint))
                                             : ""
                         anchors.verticalCenter: parent.verticalCenter
@@ -388,6 +392,14 @@ ListItem {
                         width: Theme.paddingSmall
                         visible: updateIndicator.loading || minimumTimeout.running
                     }
+                }
+
+                Row {
+                    id: attributionRow
+
+                    x: footerRow.width
+                    height: Math.max(footerRow.implicitHeight, attributionRow.implicitHeight)
+
                     Label {
                         id: attributionLabel
 
@@ -395,7 +407,11 @@ ListItem {
                         font.pixelSize: Theme.fontSizeTiny
                         text: WeatherProvider.shortAttributionText()
                         color: highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
+                        // hide this on _error if there's not enough space. doesn't make sense to show some
+                        // beginning characters of 'weather data provided by...'
                         visible: expanded && text.length > 0
+                                 && implicitWidth < (column.width - Theme.horizontalPageMargin
+                                                     - footerRow.width - attributionImage.width - Theme.paddingSmall)
                     }
                     Item {
                         height: 1
@@ -403,6 +419,8 @@ ListItem {
                         visible: attributionLabel.visible
                     }
                     Image {
+                        id: attributionImage
+
                         anchors.verticalCenter: parent.verticalCenter
                         source: _providerImage.length > 0
                                 ? _providerImage + (highlighted ? Theme.highlightColor : Theme.primaryColor)
