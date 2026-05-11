@@ -22,8 +22,6 @@ Item {
     Column {
         width: parent.width
         PageHeader {
-            id: pageHeader
-
             title: weather ? weather.city : ""
             description: {
                 if (status === Weather.Error) {
