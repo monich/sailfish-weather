@@ -20,9 +20,9 @@ BuildRequires:  qt5-qttools
 BuildRequires:  qt5-qttools-linguist
 BuildRequires:  oneshot
 
-BuildRequires: %{name}-all-translations
-%define _all_translations_version %(rpm -q --queryformat "%%{version}-%%{release}" %{name}-all-translations)
-Requires: %{name}-all-translations >= %{_all_translations_version}
+#BuildRequires: %{name}-all-translations
+#%define _all_translations_version %(rpm -q --queryformat "%%{version}-%%{release}" %{name}-all-translations)
+#Requires: %{name}-all-translations >= %{_all_translations_version}
 
 Requires: sailfishsilica-qt5
 Requires: mapplauncherd-booster-silica-qt5
@@ -33,7 +33,7 @@ Requires: qt5-qtdeclarative-import-xmllistmodel
 Requires: qt5-qtdeclarative-import-positioning
 Requires: libkeepalive
 Requires: nemo-qml-plugin-systemsettings
-Requires: nemo-qml-plugin-connectivity >= 0.2.24
+Requires: nemo-qml-plugin-connectivity >= 0.2.16
 Requires: jolla-settings-accounts
 Requires: sailfish-components-weather-qt5 == %{version}
 Requires: sailfish-weather-backend-openweather == %{version}
