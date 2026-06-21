@@ -43,7 +43,7 @@ QtObject {
     }
 
     function forecastUrl(weather, isHourly) {
-        return 'https://pfa.foreca.com/api/v1/forecast/' + (hourly ? "hourly/" : "daily/") + weather.locationId + authParam()
+        return 'https://pfa.foreca.com/api/v1/forecast/' + (isHourly ? "hourly/" : "daily/") + weather.locationId + authParam()
     }
 
     function searchLocationUrl(filter, language) {
@@ -74,8 +74,6 @@ QtObject {
 
         var weather = getWeatherData(current)
         weather.timestamp =  new Date(current.time)
-        this.timestamp = weather.timestamp
-
         weather.temperature = current.temperature
         weather.feelsLikeTemperature = current.feelsLikeTemp
         return weather
