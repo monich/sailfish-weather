@@ -43,9 +43,14 @@ ListItem {
         savedWeathersModel.save()
     }
 
+    function requestExpansion(expand) {
+        expansionRequested(expand)
+        expanded = expand
+    }
+
     onClicked: {
         if (!expanded) {
-            expansionRequested(true)
+            requestExpansion(true)
         } else if (!_error && !_unauthorized) {
             hourly = !hourly
         }
@@ -173,7 +178,7 @@ ListItem {
                 }
                 Behavior on icon.rotation { RotationAnimator { duration: 200 }}
 
-                onClicked: weatherBanner.expansionRequested(!expanded)
+                onClicked: weatherBanner.requestExpansion(!expanded)
             }
         }
         Column {
