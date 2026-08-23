@@ -9,10 +9,11 @@ Name=Weather
 X-MeeGo-Logical-Id=weather-ap-name
 X-MeeGo-Translation-Catalog=weather
 Icon=icon-launcher-weather
-Exec=/usr/bin/sailjail -p  sailfish-weather.desktop /usr/bin/sailfish-weather
+Exec=sailfish-weather
 Comment=Sailfish Weather
 
 [X-Sailjail]
-Permissions=Internet;Location;Accounts;Privileged
+Sandboxing=Disabled
+#Permissions=Internet;Location;Accounts;Privileged
 OrganizationName=org.sailfishos
 ApplicationName=weather
