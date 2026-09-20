@@ -104,7 +104,7 @@ QtObject {
             return undefined
         }
 
-        var weather = getWeatherData(entry)
+        var weather = getWeatherData(entry, true)
         weather.timestamp = new Date(entry.time)
         weather.temperature = details.air_temperature
         weather.feelsLikeTemperature = details.air_temperature
@@ -126,7 +126,7 @@ QtObject {
                     continue
                 }
 
-                var weather = getWeatherData(entry)
+                var weather = getWeatherData(entry, true)
                 weather.timestamp = new Date(entry.time)
                 weather.temperature = details.air_temperature
                 weatherData[weatherData.length] = weather
@@ -180,7 +180,7 @@ QtObject {
                 }
             }
 
-            var dailyWeather = getWeatherData(representative)
+            var dailyWeather = getWeatherData(representative, false)
             var selectedDetails = representative.data.instant.details
             dailyWeather.timestamp = new Date(representative.time)
             dailyWeather.accumulatedPrecipitation = accumulatedPrecipitation
@@ -377,9 +377,19 @@ QtObject {
         return text.charAt(0).toUpperCase() + text.slice(1)
     }
 
-    function getWeatherData(entry) {
+    function getWeatherData(entry, hourly) {
         var symbolCode = summarySymbolCode(entry.data)
-        var timeSymbol = symbolCode.indexOf("_night") >= 0 ? "n" : "d"
+        var timeSymbol
+        if (symbolCode.indexOf("_night") >= 0) {
+            timeSymbol = "n"
+        } else if (symbolCode.indexOf("_day") >= 0 || !hourly) {
+            // Use day icons as a fallback for daily forecasts
+            timeSymbol = "d"
+        } else {
+            // For hourly forecast use night icons from 10pm until 6am (local time)
+            var h = (new Date(entry.time)).getHours()
+            timeSymbol = (h > 5 && h < 22) ? "d" : "n"
+        }
         var weatherSymbol = timeSymbol + weatherTypeFromMetSymbol(symbolCode)
         var details = entry.data.instant && entry.data.instant.details ? entry.data.instant.details : {}
         var description = WeatherTypeDescriptions.description(weatherSymbol)
