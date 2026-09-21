@@ -259,66 +259,64 @@ QtObject {
     }
 
     function weatherTypeFromMetSymbol(symbolCode) {
+        var types = {
+            "clearsky": "000",
+            "fair": "100",
+            "partlycloudy": "200",
+            "cloudy": "400",
+            "fog": "600",
+
+            // Unsuffixed MET symbols use identical day/night artwork.
+            "lightrain": "410",
+            "rain": "420",
+            "heavyrain": "430",
+            "lightsleet": "411",
+            "sleet": "421",
+            "heavysleet": "431",
+            "lightsnow": "412",
+            "snow": "422",
+            "heavysnow": "432",
+            "lightdrizzle": "410",
+            "drizzle": "420",
+            "heavydrizzle": "430",
+
+            // Keep sun/moon artwork for showers. Normal and heavy showers
+            // share an icon because there is no partly cloudy heavy variant.
+            "lightrainshowers": "210",
+            "rainshowers": "220",
+            "heavyrainshowers": "220",
+            "lightsleetshowers": "211",
+            "sleetshowers": "221",
+            "heavysleetshowers": "221",
+            "lightsnowshowers": "212",
+            "snowshowers": "222",
+            "heavysnowshowers": "222",
+
+            // Thunder icons cannot distinguish precipitation type/intensity.
+            "lightrainandthunder": "440",
+            "rainandthunder": "440",
+            "heavyrainandthunder": "440",
+            "lightsleetandthunder": "440",
+            "sleetandthunder": "440",
+            "heavysleetandthunder": "440",
+            "lightsnowandthunder": "440",
+            "snowandthunder": "440",
+            "heavysnowandthunder": "440",
+            "lightrainshowersandthunder": "240",
+            "rainshowersandthunder": "240",
+            "heavyrainshowersandthunder": "240",
+            // Accept both the MET API's extra 's' and the corrected spellings.
+            "lightssleetshowersandthunder": "240",
+            "lightsleetshowersandthunder": "240",
+            "sleetshowersandthunder": "240",
+            "heavysleetshowersandthunder": "240",
+            "lightssnowshowersandthunder": "240",
+            "lightsnowshowersandthunder": "240",
+            "snowshowersandthunder": "240",
+            "heavysnowshowersandthunder": "240"
+        }
         var base = baseSymbolCode(symbolCode)
-        var thunder = base.indexOf("thunder") >= 0
-        var showers = base.indexOf("showers") >= 0
-
-        if (thunder) {
-            if (showers || base.indexOf("heavy") >= 0) {
-                return "440"
-            } else if (base.indexOf("rain") >= 0 || base.indexOf("sleet") >= 0 || base.indexOf("snow") >= 0) {
-                return "340"
-            }
-            return "240"
-        }
-
-        if (base === "fog") {
-            return "600"
-        }
-        if (base === "clearsky") {
-            return "000"
-        }
-        if (base === "fair") {
-            return "100"
-        }
-        if (base === "partlycloudy") {
-            return "200"
-        }
-        if (base === "cloudy") {
-            return "300"
-        }
-        if (base.indexOf("snowshowers") >= 0) {
-            if (base.indexOf("light") >= 0) return "222"
-            if (base.indexOf("heavy") >= 0) return "422"
-            return "322"
-        }
-        if (base.indexOf("sleetshowers") >= 0) {
-            if (base.indexOf("light") >= 0) return "221"
-            if (base.indexOf("heavy") >= 0) return "421"
-            return "321"
-        }
-        if (base.indexOf("rainshowers") >= 0) {
-            if (base.indexOf("light") >= 0) return "220"
-            if (base.indexOf("heavy") >= 0) return "420"
-            return "320"
-        }
-        if (base.indexOf("snow") >= 0) {
-            if (base.indexOf("light") >= 0) return "212"
-            if (base.indexOf("heavy") >= 0) return "432"
-            return "312"
-        }
-        if (base.indexOf("sleet") >= 0) {
-            if (base.indexOf("light") >= 0) return "211"
-            if (base.indexOf("heavy") >= 0) return "431"
-            return "311"
-        }
-        if (base.indexOf("rain") >= 0 || base.indexOf("drizzle") >= 0) {
-            if (base.indexOf("light") >= 0) return "210"
-            if (base.indexOf("heavy") >= 0) return "430"
-            return "310"
-        }
-
-        return "300"
+        return types.hasOwnProperty(base) ? types[base] : "300"
     }
 
     function humanizeMetSymbol(symbolCode) {
@@ -380,7 +378,8 @@ QtObject {
     function getWeatherData(entry, hourly) {
         var symbolCode = summarySymbolCode(entry.data)
         var timeSymbol
-        if (symbolCode.indexOf("_night") >= 0) {
+        // Approximate polar twilight with night artwork: the sun is below the horizon.
+        if (symbolCode.indexOf("_night") >= 0 || symbolCode.indexOf("_polartwilight") >= 0) {
             timeSymbol = "n"
         } else if (symbolCode.indexOf("_day") >= 0 || !hourly) {
             // Use day icons as a fallback for daily forecasts
